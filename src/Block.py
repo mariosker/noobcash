@@ -4,6 +4,7 @@ from hashlib import sha256
 import config
 from config import logger
 import Transaction
+import crypto
 
 
 class Block:
@@ -29,7 +30,7 @@ class Block:
         to_hash = str(self.index) + str(self.timestamp) + str(self.nonce) + str(
             self.previous_hash) + "".join(
                 str(t.vars()) for t in self.transactions)
-        return sha256(to_hash).hexdigest()
+        return crypto.hash_to_str(to_hash)
 
     def add_transaction(self, transaction: Transaction):
         if len(self.transactions < config.BLOCK_CAPACITY):
