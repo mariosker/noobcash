@@ -2,9 +2,8 @@ import time
 from hashlib import sha256
 
 import config
-from config import logger
-import Transaction
 import crypto
+from config import logger
 
 
 class Block:
@@ -12,7 +11,7 @@ class Block:
     """
 
     def __init__(self, index: int, previous_hash: str = "") -> None:
-        """_summary_
+        """Generate a new block.
 
         Args:
             index (int): the index of the block in the blockchain
@@ -26,13 +25,12 @@ class Block:
         self.current_hash = self.calculate_hash()
 
     def calculate_hash(self) -> str:
-
         to_hash = str(self.index) + str(self.timestamp) + str(self.nonce) + str(
             self.previous_hash) + "".join(
                 str(t.vars()) for t in self.transactions)
         return crypto.hash_to_str(to_hash)
 
-    def add_transaction(self, transaction: Transaction):
+    def add_transaction(self, transaction):
         if len(self.transactions < config.BLOCK_CAPACITY):
             self.transactions.append(transaction)
         else:
