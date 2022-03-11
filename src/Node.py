@@ -1,22 +1,11 @@
 from collections import deque
-from dataclasses import dataclass
-import requests
+
 import config
 from Block import Block
 from Blockchain import Blockchain
+from Ring import Ring
 from Transaction import Transaction, TransactionInput, TransactionOutput
 from Wallet import Wallet
-
-
-@dataclass
-class RingNode:
-    """Contains the data of a node in the ring
-    """
-    id: str
-    ip: str
-    port: str
-    public_key: str
-    balance: str
 
 
 class Node:
@@ -30,7 +19,7 @@ class Node:
         self.blockchain = Blockchain()
         self.wallet = Wallet()
         self.current_block = None
-        self.ring = []
+        self.ring = Ring()
         self.blocks_to_mine = deque()
 
     def create_genesis_block(self):
@@ -76,8 +65,8 @@ class Node:
         if not transaction.verify_signature():
             return False
 
-        current_node = next(
-            n for n in self.ring if n.public_key == transaction.sender_address)
+        current_node = self.ring.get_node(
+            lambda x: (x.public_key == transaction.sender_address))
 
         if not current_node:
             return False
@@ -94,13 +83,13 @@ class Node:
         # TODO: implement chains
         chains = list()
         chains.sort(key=lambda x: len(x), reverse=True)
-
-        selected_chain = next(
-            c for c in chains
-            if c >= len(self.blockchain.chain) and c.validate_chain())
-
-    def register_node_to_ring(self, id, ip, port, public_key, balance):
-        self.ring.append(RingNode(id, ip, port, public_key, balance))
+        try:
+            selected_chain = next(
+                c for c in chains
+                if c >= len(self.blockchain.chain) and c.validate_chain())
+        except StopIteration:
+            # No such chain handle this
+            pass
 
     def mine_block(self, block: Block):
         """Mines the block until it begins with MINING_DIFFICULTY zeroes
