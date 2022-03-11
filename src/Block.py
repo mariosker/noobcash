@@ -2,7 +2,6 @@ import time
 
 import config
 import crypto
-from config import logger
 
 
 class Block:
@@ -49,11 +48,3 @@ class Block:
         else:
             raise ValueError(
                 f'Block reached capacity of {config.BLOCK_CAPACITY}.')
-
-    def mine_block(self):
-        """Mines the block until it begins with MINING_DIFFICULTY zeroes
-        """
-        while not self.current_hash.startswith('0' * config.MINING_DIFFICULTY):
-            self.nonce += 1
-            self.current_hash = self.calculate_hash()
-        logger.debug(f"Block mined with nonce {self.nonce}")
