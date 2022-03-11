@@ -43,6 +43,7 @@ class Block:
         Raises:
             ValueError: Error if block is full
         """
+        # TODO: check if transaction is valid
         if len(self.transactions) < config.BLOCK_CAPACITY:
             self.transactions.append(transaction)
         else:

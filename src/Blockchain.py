@@ -31,9 +31,8 @@ class Blockchain:
             bool: True if valid else False
         """
         prev_block = self.chain[block.index - 1]
-        has_valid_hash = block.current_hash == block.calculate_hash()
-        points_to_prev_block = block.previous_hash == prev_block.calculate_hash(
-        )
+        has_valid_hash = (block.current_hash == block.calculate_hash())
+        points_to_prev_block = (block.previous_hash == prev_block.calculate_hash())
 
         return has_valid_hash and points_to_prev_block
 

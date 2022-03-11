@@ -1,5 +1,5 @@
 from hashlib import sha256
-
+import uuid
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
@@ -68,3 +68,15 @@ def hash_to_str(message: str) -> str:
         str: the digest of the hash
     """
     return sha256(message).hexdigest()
+
+
+def get_random_hash() -> int:
+    """get a random hash in the form of int
+
+    Args:
+
+    Returns:
+        int: the returned hash
+    
+    """
+    return uuid.uuid4().int

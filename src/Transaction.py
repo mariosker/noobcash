@@ -1,5 +1,13 @@
 import crypto
-import uuid
+from dataclasses import dataclass
+
+
+@dataclass
+class TransactionOutput:
+    transaction_id: str
+    receiver: str
+    value: int
+    id: int = crypto.get_random_hash()
 
 
 class Transaction:
@@ -23,20 +31,21 @@ class Transaction:
     def sign_transaction(self, private_key):
         return crypto.get_signature(self.transaction_id, private_key)
 
+    def verify_signature(self, public_key):
+        return crypto.is_signature_valid(self.signature, self.transaction_id,
+                                         public_key)
+
     def get_transaction_outputs(self):
         # computes the 2 outputs of the transaction
-        balance = sum([input['value'] for input in self.transaction_inputs])
+        total_input_amount = sum(
+            [input['value'] for input in self.transaction_inputs])
 
-        output1 = {
-            'id': uuid.uuid4().int,
-            'transaction_id': self.transaction_id,
-            'recipient': self.sender_address,
-            'value': balance - self.amount
-        }
-        output2 = {
-            'id': uuid.uuid4().int,
-            'transaction_id': self.transaction_id,
-            'recipient': self.receiver_address,
-            'value': self.amount
-        }
-        return [output1, output2]
+        sender_output = TransactionOutput(transaction_id=self.transaction_id,
+                                          receiver=self.sender_address,
+                                          value=total_input_amount -
+                                          self.amount)
+        receiver_output = TransactionOutput(transaction_id=self.transaction_id,
+                                            receiver=self.receiver_address,
+                                            value=self.amount)
+
+        return [sender_output, receiver_output]
