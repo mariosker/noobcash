@@ -1,6 +1,7 @@
-from Transaction import Transaction, TransactionOutput
 from collections import deque
+
 import crypto
+from Transaction import Transaction, TransactionOutput
 
 
 class Wallet:

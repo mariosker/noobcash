@@ -1,5 +1,7 @@
-import crypto
+import time
 from dataclasses import dataclass
+
+import crypto
 
 
 @dataclass
@@ -12,19 +14,28 @@ class TransactionOutput:
     id: int = crypto.get_random_hash()
 
 
+@dataclass
+class TransactionInput:
+    """ Input object in the transaction outputs list
+    """
+    id: int
+    value: int
+
+
 class Transaction:
     """Transaction that goes in the block
     """
 
     def __init__(self, sender_address, receiver_address, amount,
-                 transaction_inputs, transaction_outputs) -> None:
+                 transaction_inputs, private_key) -> None:
         self.sender_address = sender_address
         self.receiver_address = receiver_address
         self.amount = amount
         self.transaction_inputs = transaction_inputs
-        self.transaction_outputs = transaction_outputs
+        self.transaction_outputs = self.get_transaction_outputs
+        self.timestamp = time.time()
         self.transaction_id = self.calculate_hash()
-        # self.signature = None
+        self.signature = self.sign_transaction(private_key)
 
     def calculate_hash(self):
         """Calculates the hash of the transaction
@@ -34,7 +45,7 @@ class Transaction:
         """
         # TODO: Add more to hash
         to_hash = str(self.sender_address) + str(self.receiver_address) + str(
-            self.amount)
+            self.amount) + str(self.timestamp)
         return crypto.hash_to_str(to_hash)
 
     def sign_transaction(self, private_key: crypto.rsa.RSAPrivateKey):
@@ -69,12 +80,13 @@ class Transaction:
             list(TransactionOutput): list of the two outputs
         """
         total_input_amount = sum(
-            [input['value'] for input in self.transaction_inputs])
+            input['value'] for input in self.transaction_inputs)
 
         sender_output = TransactionOutput(transaction_id=self.transaction_id,
                                           receiver=self.sender_address,
                                           value=total_input_amount -
                                           self.amount)
+
         receiver_output = TransactionOutput(transaction_id=self.transaction_id,
                                             receiver=self.receiver_address,
                                             value=self.amount)
