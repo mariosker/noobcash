@@ -10,12 +10,11 @@ class Wallet:
         self.transactions = []
         self.unspent_transactions = deque()
 
-    def wallet_balance(self):
-        # The balance of the wallet equals the sum of the UTXOs that
-        # have as recipient the current wallet.
+    def wallet_balance(self) -> int:
+        """Get the balance of the wallet
 
-        balance = 0
-        for utxo in self.unspent_transactions:
-            balance += utxo.value
-
+        Returns:
+            int: the balance
+        """
+        balance = sum(utxo.value for utxo in self.unspent_transactions)
         return balance

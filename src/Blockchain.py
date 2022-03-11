@@ -3,6 +3,8 @@ from config import logger
 
 
 class Blockchain:
+    """ Contains the blocks of the blockchain
+    """
 
     def __init__(self, chain: list(Block) = []) -> None:
         self.chain = chain
@@ -32,12 +34,17 @@ class Blockchain:
         """
         prev_block = self.chain[block.index - 1]
         has_valid_hash = (block.current_hash == block.calculate_hash())
-        points_to_prev_block = (block.previous_hash == prev_block.calculate_hash())
+        points_to_prev_block = (
+            block.previous_hash == prev_block.calculate_hash())
 
         return has_valid_hash and points_to_prev_block
 
     def validate_chain(self) -> bool:
-        for block in self.chain[1:]:
-            if not self.validate_block(block):
-                return False
-        return True
+        """checks if all blocks are valid
+
+        Returns:
+            bool: True if chain is valid
+        """
+        if all(self.validate_block(block) for block in self.chain[1:]):
+            return True
+        return False

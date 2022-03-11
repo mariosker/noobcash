@@ -77,6 +77,6 @@ def get_random_hash() -> int:
 
     Returns:
         int: the returned hash
-    
+
     """
     return uuid.uuid4().int

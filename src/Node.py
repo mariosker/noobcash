@@ -5,6 +5,8 @@ from Transaction import Transaction, TransactionOutput
 
 
 class Node:
+    """User using the blockchain
+    """
 
     def __init__(self) -> None:
         self.NBC = 0

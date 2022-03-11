@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 @dataclass
 class TransactionOutput:
+    """ Output object in in the transaction outputs list
+    """
     transaction_id: str
     receiver: str
     value: int
@@ -11,6 +13,8 @@ class TransactionOutput:
 
 
 class Transaction:
+    """Transaction that goes in the block
+    """
 
     def __init__(self, sender_address, receiver_address, amount,
                  transaction_inputs, transaction_outputs) -> None:
@@ -23,20 +27,47 @@ class Transaction:
         # self.signature = None
 
     def calculate_hash(self):
+        """Calculates the hash of the transaction
+
+        Returns:
+            str: the hash as a string
+        """
         # TODO: Add more to hash
         to_hash = str(self.sender_address) + str(self.receiver_address) + str(
             self.amount)
         return crypto.hash_to_str(to_hash)
 
-    def sign_transaction(self, private_key):
+    def sign_transaction(self, private_key: crypto.rsa.RSAPrivateKey):
+        """signs the transaction
+
+        Args:
+            private_key (rsa.RSAPrivateKey): The private key of the wallet
+
+        Returns:
+            Bytes: The signature
+        """
         return crypto.get_signature(self.transaction_id, private_key)
 
     def verify_signature(self, public_key):
+        """Given a public key verifies that a signature is correct
+
+        Args:
+            public_key (rsa.RSAPublicKey): The public key of the wallet
+
+        Returns:
+            bool: True if signature is valid
+        """
         return crypto.is_signature_valid(self.signature, self.transaction_id,
                                          public_key)
 
     def get_transaction_outputs(self):
-        # computes the 2 outputs of the transaction
+        """Generates the outputs of the transaction
+
+        One output is for the receiver(amount of coins to receive) and one for the sender(change from the inputs)
+
+        Returns:
+            list(TransactionOutput): list of the two outputs
+        """
         total_input_amount = sum(
             [input['value'] for input in self.transaction_inputs])
 
