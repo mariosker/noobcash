@@ -6,7 +6,7 @@ class RingNode:
     """Contains the data of a node in the ring
     """
     id: str
-    ip: str
+    host: str
     port: str
     public_key: str
     balance: str

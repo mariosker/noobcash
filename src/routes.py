@@ -1,8 +1,4 @@
-from flask import Blueprint, request
-from src.adapters.adapters import Adapters
-
-api = Blueprint('api', __name__, url_prefix='/api/cli')
-adapters = Adapters()
+from flask import request
 
 
 class RouteHandler:
@@ -33,25 +29,25 @@ class RouteHandler:
     def create_transaction(self):
         receiver_address = request.args.get("receiver_address")
         amount = request.args.get("amount")
-        adapters.create_transaction(receiver_address, amount)
+        self.adapter.create_transaction(receiver_address, amount)
 
     def get_transactions_from_last_block(self):
-        adapters.get_transactions_from_last_block()
+        self.adapter.get_transactions_from_last_block()
 
     def validate_transaction(self):
-        adapters.validate_transaction()
+        self.adapter.validate_transaction()
 
     def get_balance(self):
-        adapters.get_balance()
+        self.adapter.get_balance()
 
     def register_node(self):
-        adapters.register_node()
+        self.adapter.register_node()
 
     def get_chain(self):
-        adapters.get_chain()
+        self.adapter.get_chain()
 
     def create_block(self):
-        adapters.create_block()
+        self.adapter.create_block()
 
     def set_ring(self):
-        adapters.set_ring()
+        self.adapter.set_ring()

@@ -8,7 +8,10 @@ class Block:
     """A block of the blockchain
     """
 
-    def __init__(self, index: int, previous_hash: str = "") -> None:
+    def __init__(self,
+                 index: int,
+                 previous_hash: str = "",
+                 transactions: list[Transaction] = []) -> None:
         """Generate a new block.
 
         Args:
@@ -17,7 +20,7 @@ class Block:
         """
         self.index = index
         self.timestamp = time.time()
-        self.transactions = []
+        self.transactions = transactions
         self.nonce = 0
         self.previous_hash = previous_hash
         self.current_hash = self.calculate_hash()
