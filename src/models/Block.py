@@ -1,5 +1,4 @@
 import time
-
 from src.models.Transaction import Transaction
 from src import config
 from src.pkg import crypto

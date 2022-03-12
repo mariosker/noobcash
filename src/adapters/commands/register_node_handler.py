@@ -1,10 +1,10 @@
 from src.models import Node
 
 
-class GetBalanceHandler:
+class RegisterNodeHandler:
 
     def __init__(self, node: Node) -> None:
-        self.wallet = node.wallet
+        self.node = node
 
     def handle(self):
-        self.wallet.wallet_balance()
+        self.node.register_node()

@@ -12,9 +12,9 @@ class Node:
     """User using the blockchain
     """
 
-    def __init__(self, id=0) -> None:
-        self.id = id
-        if not id:
+    def __init__(self, u_id=0) -> None:
+        self.id = u_id
+        if not u_id:
             self.create_genesis_block()
         self.blockchain = Blockchain()
         self.wallet = Wallet()
