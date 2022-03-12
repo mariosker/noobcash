@@ -1,13 +1,16 @@
-from flask import Blueprint
-import adapters
+from flask import Blueprint, request
+from src.adapters.adapters import Adapters
 
 api = Blueprint('api', __name__, url_prefix='/api/cli')
+adapters = Adapters()
 
 
 # create transaction
 @api.route('/transactions', method=['POST'])
 def create_transaction():
-    adapters.create_transaction()
+    receiver_address = request.args.get("receiver_address")
+    amount = request.args.get("amount")
+    adapters.create_transaction(receiver_address, amount)
 
 
 @api.route('/transactions', method=['GET'])
@@ -42,8 +45,8 @@ peers:
 '''
 
 
-
 class RouteHandler:
+
     def __init__(self, app, adapter) -> None:
         pass
 

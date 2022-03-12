@@ -1,6 +1,5 @@
 from collections import deque
 
-
 from src.models.Transaction import Transaction, TransactionOutput
 from src.pkg import crypto
 
