@@ -1,5 +1,4 @@
-from Block import Block
-from config import logger
+from src.models.Block import Block
 
 
 class Blockchain:

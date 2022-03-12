@@ -2,7 +2,7 @@ import uuid
 import time
 from dataclasses import dataclass
 
-import etc.crypto as crypto
+from src.pkg import crypto
 
 
 @dataclass

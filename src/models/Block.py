@@ -1,8 +1,9 @@
 import time
 
-import config
-import etc.crypto as crypto
-from Transaction import Transaction
+from src.models.Transaction import Transaction
+from src import config
+from src.pkg import crypto
+
 
 class Block:
     """A block of the blockchain

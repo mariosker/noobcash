@@ -1,10 +1,10 @@
-from models import Node
+from src.models import Node
 
 
 class Adapters:
 
     def __init__(self, is_bootstrap: bool = False, node_count: int = 0):
-        Node()
+        # Node()
         pass
 
     def create_transaction(self):

@@ -1,7 +1,8 @@
 from collections import deque
 
-import etc.crypto as crypto
-from Transaction import Transaction, TransactionOutput
+
+from src.models.Transaction import Transaction, TransactionOutput
+from src.pkg import crypto
 
 
 class Wallet:

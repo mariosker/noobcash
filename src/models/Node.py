@@ -1,11 +1,11 @@
 from collections import deque
 
-import config
-from Block import Block
-from Blockchain import Blockchain
-from models.Ring import Ring
-from Transaction import Transaction, TransactionInput, TransactionOutput
-from Wallet import Wallet
+from src.models.Block import Block
+from src.models.Blockchain import Blockchain
+from src.models.Ring import Ring
+from src.models.Transaction import Transaction, TransactionInput
+from src.models.Wallet import Wallet
+from src import config
 
 
 class Node:
