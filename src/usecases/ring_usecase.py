@@ -1,10 +1,10 @@
-from src.models import Node
+from src.repository import Node
 
 
-class GetChainHandler:
+class RingUsecase:
 
     def __init__(self, node: Node) -> None:
         self.node = node
 
-    def handle(self):
+    def set_for_all_nodes(self):
         pass

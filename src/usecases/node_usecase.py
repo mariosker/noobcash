@@ -1,10 +1,10 @@
-from src.models import Node
+from src.repository import Node
 
 
-class RegisterNodeHandler:
+class NodeUsecase:
 
     def __init__(self, node: Node) -> None:
         self.node = node
 
-    def handle(self):
+    def register(self):
         self.node.register_node()

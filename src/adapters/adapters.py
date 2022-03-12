@@ -1,22 +1,17 @@
-from src.adapters.commands.create_block_handler import CreateBlockHandler
-from src.adapters.commands.create_transaction_handler import \
-    CreateTransactionHandler
-from src.adapters.commands.register_node_handler import RegisterNodeHandler
-from src.adapters.commands.set_ring_handler import SetRingHandler
-from src.adapters.queries.get_balance_handler import GetBalanceHandler
-from src.adapters.queries.get_chain_handler import GetChainHandler
-from src.adapters.queries.get_transactions_from_last_block_handler import \
-    GetTransactionsFromLastBlockHandler
-from src.adapters.queries.validate_transaction import \
-    ValidateTransactionHandler
-from src.models.Node import Node
+from src.usecases.transaction_usecase import TransactionUsecase
+from src.usecases.wallet_usecase import WalletUsecase
+from src.usecases.chain_usecase import ChainUsecase
+from src.usecases.node_usecase import NodeUsecase
+from src.usecases.block_usecase import BlockUsecase
+from src.usecases.ring_usecase import RingUsecase
+from src.repository.Node import Node
 
 
 class Adapters:
 
     def __init__(self, is_bootstrap: bool = False, node_count: int = 0):
         self.node = self._create_bootstrap_node(
-        ) if is_bootstrap else self._create_node(self)
+        ) if is_bootstrap else self._create_node()
 
     def _create_node(self):
         pass
@@ -25,33 +20,33 @@ class Adapters:
         node = Node()
 
     def create_transaction(self, receiver_address: str, amount: int):
-        handler = CreateTransactionHandler(self.node)
-        handler.handle(receiver_address, amount)
+        transaction = TransactionUsecase(self.node)
+        transaction.create(receiver_address, amount)
 
     def get_transactions_from_last_block(self):
-        handler = GetTransactionsFromLastBlockHandler(self.node)
-        handler.handle()
+        transaction = TransactionUsecase(self.node)
+        transaction.get_from_last_block()
 
     def get_balance(self):
-        handler = GetBalanceHandler(self.node)
-        return handler.handle()
+        wallet = WalletUsecase(self.node)
+        return wallet.get_balance()
 
     def validate_transaction(self):
-        handler = ValidateTransactionHandler(self.node)
-        handler.handle()
+        transaction = TransactionUsecase(self.node)
+        transaction.validate()
 
     def get_chain(self):
-        handler = GetChainHandler(self.node)
-        handler.handle()
+        chain = ChainUsecase(self.node)
+        chain.get()
 
     def register_node(self):
-        handler = RegisterNodeHandler(self.node)
-        handler.handle()
+        node = NodeUsecase(self.node)
+        node.register()
 
     def create_block(self):
-        handler = CreateBlockHandler(self.node)
-        handler.handle()
+        block = BlockUsecase(self.node)
+        block.create()
 
     def set_ring(self):
-        handler = SetRingHandler(self.node)
-        handler.handle()
+        ring = RingUsecase(self.node)
+        ring.set_for_all_nodes()

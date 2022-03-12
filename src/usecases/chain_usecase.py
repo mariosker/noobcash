@@ -1,10 +1,10 @@
-from src.models import Node
+from src.repository import Node
 
 
-class SetRingHandler:
+class ChainUsecase:
 
     def __init__(self, node: Node) -> None:
         self.node = node
 
-    def handle(self):
+    def get(self):
         pass
