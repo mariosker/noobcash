@@ -3,7 +3,7 @@ from collections import deque
 import config
 from Block import Block
 from Blockchain import Blockchain
-from Ring import Ring
+from models.Ring import Ring
 from Transaction import Transaction, TransactionInput, TransactionOutput
 from Wallet import Wallet
 

@@ -1,6 +1,6 @@
 from collections import deque
 
-import crypto
+import etc.crypto as crypto
 from Transaction import Transaction, TransactionOutput
 
 
