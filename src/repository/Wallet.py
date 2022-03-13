@@ -16,5 +16,4 @@ class Wallet:
         Returns:
             int: the balance
         """
-        balance = sum(utxo.value for utxo in self.unspent_transactions)
-        return balance
+        return sum(utxo.value for utxo in self.unspent_transactions)

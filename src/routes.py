@@ -1,5 +1,8 @@
-from flask import request
+import pickle
+
 from config import config
+from flask import request
+
 
 class RouteHandler:
 
@@ -13,7 +16,9 @@ class RouteHandler:
 
     def _init_endpoints(self):
         add_endpoint = self._add_endpoint
-        add_endpoint(config.TRANSACTION_URL, self.create_transaction, methods=['POST'])
+        add_endpoint(config.TRANSACTION_URL,
+                     self.create_transaction,
+                     methods=['POST'])
         add_endpoint(config.TRANSACTION_URL,
                      self.get_transactions_from_last_block,
                      methods=['GET'])
@@ -21,10 +26,14 @@ class RouteHandler:
                      self.validate_transaction,
                      methods=['GET'])
         add_endpoint(config.BALANCE_URL, self.get_balance, methods=['GET'])
-        add_endpoint(config.NODE_REGISTER_URL, self.register_node, methods=['POST'])
-        add_endpoint(config.NODE_BLOCKCHAIN_URL, self.get_chain, methods=['GET'])
+        add_endpoint(config.NODE_REGISTER_URL,
+                     self.register_node,
+                     methods=['POST'])
+        add_endpoint(config.NODE_BLOCKCHAIN_URL,
+                     self.get_chain,
+                     methods=['GET'])
         add_endpoint(config.NODE_BLOCK_URL, self.create_block, methods=['POST'])
-        add_endpoint(config.RING_URL, self.set_ring, methods=['POST'])
+        add_endpoint(config.NODE_SET_INFO_URL, self.set_info, methods=['POST'])
 
     def create_transaction(self):
         receiver_address = request.args.get("receiver_address")
@@ -38,10 +47,12 @@ class RouteHandler:
         self.adapter.validate_transaction()
 
     def get_balance(self):
-        self.adapter.get_balance()
+        return str(self.adapter.get_balance())
 
     def register_node(self):
-        self.adapter.register_node()
+        node_info = pickle.loads(request.get_data())
+        node_info = self.adapter.register_node(node_info)
+        return pickle.dumps(node_info)
 
     def get_chain(self):
         self.adapter.get_chain()
@@ -49,5 +60,10 @@ class RouteHandler:
     def create_block(self):
         self.adapter.create_block()
 
-    def set_ring(self):
-        self.adapter.set_ring()
+    def set_info(self):
+        data = pickle.loads(request.get_data())
+        ring = data['ring']
+        blockchain = data['blockchain']
+        self.adapter.set_ring(ring)
+        self.adapter.set_blockchain(blockchain)
+        return ('', 204)

@@ -1,7 +1,8 @@
 import time
-from src.repository.transaction import Transaction
+
 from config import config
 from src.pkg import crypto
+from src.repository.transaction import Transaction
 
 
 class Block:
@@ -33,7 +34,7 @@ class Block:
         """
         to_hash = str(self.timestamp) + str(self.nonce) + str(
             self.previous_hash) + "".join(
-                str(t.vars()) for t in self.transactions)
+                str(vars(t)) for t in self.transactions)
         return crypto.hash_to_str(to_hash)
 
     def add_transaction(self, transaction) -> Transaction:

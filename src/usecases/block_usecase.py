@@ -1,5 +1,4 @@
-from src.repository import node
-from src.repository import block
+from src.repository import block, node
 
 
 class BlockUsecase:

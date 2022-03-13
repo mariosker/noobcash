@@ -9,7 +9,12 @@ class RingNode:
     host: str
     port: str
     public_key: str
-    balance: str
+    balance: str = 0
+
+    def __eq__(self, other):
+        if isinstance(other, RingNode):
+            return self.id == other.id
+        return False
 
 
 class Ring:
@@ -28,3 +33,7 @@ class Ring:
             return next(n for n in self.ring if key(n))
         except StopIteration:
             return None
+
+    def __iter__(self):
+        for each in self.ring:
+            yield each

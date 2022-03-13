@@ -3,7 +3,7 @@ import argparse
 from flask import Flask
 
 from config import config
-from src.repository.adapters import Adapters
+from src.adapters import Adapters
 from src.routes import RouteHandler
 
 
@@ -38,6 +38,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     config.IS_BOOTSRAP = config.IS_BOOTSRAP if config.IS_BOOTSRAP else args.bootstrap
     config.MAX_USER_COUNT = config.MAX_USER_COUNT if config.MAX_USER_COUNT else args.nodes
-    config.PORT = config.PORT if config.PORT else args.port
+    config.PORT = str(config.PORT if config.PORT else args.port)
 
     main(config.IS_BOOTSRAP, config.MAX_USER_COUNT, config.PORT)

@@ -1,10 +1,10 @@
-from src.repository import node
+from src.repository.node import Node
 
 
 class WalletUsecase:
 
-    def __init__(self, node: node) -> None:
+    def __init__(self, node: Node) -> None:
         self.wallet = node.wallet
 
     def get_balance(self) -> int:
-        return self.wallet.wallet_balance()
+        return self.wallet.get_balance()
