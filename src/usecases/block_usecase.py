@@ -1,10 +1,10 @@
-from src.repository import node_repository
+from src.repository import Node
 from src.repository import Block
 
 
 class BlockUsecase:
 
-    def __init__(self, node: node_repository) -> None:
+    def __init__(self, node: Node) -> None:
         self.node = node
 
     def create(self) -> Block:
