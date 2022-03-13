@@ -5,8 +5,9 @@ import requests
 from config import config
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
-from src.repository.ring import Ring
-from src.repository.transaction import Transaction, TransactionInput
+from src.repository.ring import Ring, RingNode
+from src.repository.transaction import (Transaction, TransactionInput,
+                                        TransactionOutput)
 from src.repository.wallet import Wallet
 
 
@@ -19,6 +20,11 @@ class Node:
         self.ring = Ring()
         self.blocks_to_mine = deque()
         self.blockchain = Blockchain()
+        self.node_info = RingNode(id=-1,
+                                  host=config.HOST,
+                                  port=config.PORT,
+                                  public_key=self.wallet.public_key,
+                                  balance=self.wallet.get_balance())
 
     def _broadcast_ring(self):
         data = {'ring': self.ring, 'blockchain': self.blockchain}
@@ -46,16 +52,41 @@ class Node:
             transaction_inputs.append(
                 TransactionInput(current_utxo.id, current_utxo.value))
 
-        # TODO: Fix broadcast transaction
-        try:
-            self.broadcast_transaction()
+        transaction = Transaction(self.wallet.public_key, receiver_address, amount,
+                                  transaction_inputs, self.wallet.private_key)
 
-        except ...:
-            self.wallet.unspent_transactions.extend(transactions_to_be_spent)
-            return None
+        # TODO:
+        # 3) Add to block?
 
-        return Transaction(self.wallet.public_key, receiver_address, amount,
-                           transaction_inputs, self.wallet.private_key)
+        transaction_pickled = pickle.dumps(transaction)
+        resps = self.broadcast(config.TRANSACTION_URL, transaction_pickled)
+        for resp in resps:
+            if resp != 200:
+                return False
+        return True
+
+    def register_transaction(self, transaction: Transaction):
+        if not self.validate_transaction(transaction):
+            raise ValueError('Transaction not valid')
+
+        if self.wallet.public_key == transaction.sender_address:
+            self.wallet.transactions.append(transaction)
+
+        elif self.wallet.public_key == transaction.receiver_address:
+            self.wallet.transactions.append(transaction)
+            self.wallet.unspent_transactions.append(TransactionOutput(
+                transaction.transaction_id, transaction.receiver_address, transaction.amount))
+
+        for node in self.ring:
+            if node.public_key == transaction.sender_address:
+                node.balance -= transaction.amount
+            if node.public_key == transaction.receiver_address:
+                node.balance += transaction.amount
+
+        self.add_transaction_to_block(transaction)
+
+    def add_transaction_to_block(self, transaction: Transaction):
+        pass
 
     def broadcast(self, URL: str, obj):
         responses = []

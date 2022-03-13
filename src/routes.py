@@ -20,6 +20,9 @@ class RouteHandler:
         add_endpoint(config.TRANSACTION_URL,
                      self.create_transaction,
                      methods=['POST'])
+        add_endpoint(config.TRANSACTION_REGISTER_URL,
+                     self.register_transaction_to_block,
+                     methods=['POST'])
         add_endpoint(config.TRANSACTION_URL,
                      self.get_transactions_from_last_block,
                      methods=['GET'])
@@ -40,7 +43,13 @@ class RouteHandler:
     def create_transaction(self):
         receiver_address = request.args.get("receiver_address")
         amount = request.args.get("amount")
-        self.adapter.create_transaction(receiver_address, amount)
+        if self.adapter.create_transaction(receiver_address, amount):
+            return('could not create transaction', 500)
+        return('transaction created successfully', 200)
+
+    def register_transaction_to_block(self):
+        transaction = pickle.loads(request.get_data())
+        return self.adapter.register_transaction_to_block(transaction)
 
     def get_transactions_from_last_block(self):
         self.adapter.get_transactions_from_last_block()
