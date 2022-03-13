@@ -3,14 +3,18 @@ import argparse
 from flask import Flask
 
 from config import config
-from src.adapters import Adapters
+from src.bootstrap_adapters import BootstapAdapters
+from src.p2p_adapters import P2PAdapters
 from src.routes import RouteHandler
 
 
-def main(is_bootstrap, max_user_count, port):
+def main(is_bootstrap, port):
     app = Flask(__name__)
 
-    adapterServices = Adapters(is_bootstrap, max_user_count)
+    if is_bootstrap:
+        adapterServices = BootstapAdapters()
+    else:
+        adapterServices = P2PAdapters()
     RouteHandler(app, adapterServices)
 
     app.run(port=port)
@@ -40,4 +44,4 @@ if __name__ == "__main__":
     config.MAX_USER_COUNT = config.MAX_USER_COUNT if config.MAX_USER_COUNT else args.nodes
     config.PORT = str(config.PORT if config.PORT else args.port)
 
-    main(config.IS_BOOTSRAP, config.MAX_USER_COUNT, config.PORT)
+    main(config.IS_BOOTSRAP, config.PORT)

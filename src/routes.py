@@ -2,6 +2,7 @@ import pickle
 
 from config import config
 from flask import request
+from numpy import block
 
 
 class RouteHandler:
@@ -32,7 +33,8 @@ class RouteHandler:
         add_endpoint(config.NODE_BLOCKCHAIN_URL,
                      self.get_chain,
                      methods=['GET'])
-        add_endpoint(config.NODE_BLOCK_URL, self.create_block, methods=['POST'])
+        add_endpoint(config.NODE_BLOCK_URL,
+                     self.create_block, methods=['POST'])
         add_endpoint(config.NODE_SET_INFO_URL, self.set_info, methods=['POST'])
 
     def create_transaction(self):
