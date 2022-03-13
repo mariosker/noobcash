@@ -1,12 +1,11 @@
-from Block import Block
-from config import logger
+from src.repository.Block import Block
 
 
 class Blockchain:
     """ Contains the blocks of the blockchain
     """
 
-    def __init__(self, chain: list(Block) = []) -> None:
+    def __init__(self, chain: list[Block] = []) -> None:
         self.chain = chain
 
     def add_block(self, block: Block):

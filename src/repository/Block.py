@@ -1,14 +1,17 @@
 import time
-
-import config
-import crypto
+from src.repository.Transaction import Transaction
+from src import config
+from src.pkg import crypto
 
 
 class Block:
     """A block of the blockchain
     """
 
-    def __init__(self, index: int, previous_hash: str = "") -> None:
+    def __init__(self,
+                 index: int,
+                 previous_hash: str = "",
+                 transactions: list[Transaction] = []) -> None:
         """Generate a new block.
 
         Args:
@@ -17,7 +20,7 @@ class Block:
         """
         self.index = index
         self.timestamp = time.time()
-        self.transactions = []
+        self.transactions = transactions
         self.nonce = 0
         self.previous_hash = previous_hash
         self.current_hash = self.calculate_hash()
@@ -33,7 +36,7 @@ class Block:
                 str(t.vars()) for t in self.transactions)
         return crypto.hash_to_str(to_hash)
 
-    def add_transaction(self, transaction):
+    def add_transaction(self, transaction) -> Transaction:
         """Adds a transaction to the block
 
         Args:
@@ -45,6 +48,7 @@ class Block:
         # TODO: check if transaction is valid
         if len(self.transactions) < config.BLOCK_CAPACITY:
             self.transactions.append(transaction)
+            return self.transactions
         else:
             raise ValueError(
                 f'Block reached capacity of {config.BLOCK_CAPACITY}.')

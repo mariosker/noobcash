@@ -1,29 +1,43 @@
+import socket
 from collections import deque
 
-import config
-from Block import Block
-from Blockchain import Blockchain
-from Ring import Ring
-from Transaction import Transaction, TransactionInput, TransactionOutput
-from Wallet import Wallet
+from src import config
+from src.repository.Block import Block
+from src.repository.Blockchain import Blockchain
+from src.repository.Ring import Ring, RingNode
+from src.repository.Transaction import Transaction, TransactionInput
+from src.repository.Wallet import Wallet
 
 
 class Node:
     """User using the blockchain
     """
 
-    def __init__(self, id=0) -> None:
-        self.id = id
-        if not id:
-            self.create_genesis_block()
-        self.blockchain = Blockchain()
+    def __init__(self, uid=0) -> None:
         self.wallet = Wallet()
+        self.blockchain = Blockchain()
+        self.node_info = RingNode(id=uid,
+                                  host=socket.gethostname,
+                                  port=config.PORT,
+                                  public_key=self.wallet.public_key,
+                                  balance=self.wallet.get_balance())
         self.current_block = None
-        self.ring = Ring()
         self.blocks_to_mine = deque()
+        if not uid:
+            self.init_bootstrap()
+            self.ring = Ring()
+
+    def init_bootstrap(self):
+        #TODO:
+        self.ring.append(self.node_info)
+        self.create_genesis_block()
 
     def create_genesis_block(self):
-        self.current_block = Block(0, 1)
+        genesis_amount = 100 * config.MAX_USER_COUNT
+        genesis_transaction = Transaction('0', self.wallet.public_key,
+                                          genesis_amount, None,
+                                          self.wallet.private_key)
+        self.current_block = Block(0, 1, [genesis_transaction])
 
     def create_block(self):
         # New index and previous hash will be updated in mining.
@@ -36,9 +50,9 @@ class Node:
         transactions_to_be_spent = deque()
         input_amount = 0
 
-        if self.wallet.wallet_balance() < amount:
+        if self.wallet.get_balance() < amount:
             raise ValueError(
-                f'You have {self.wallet.wallet_balance()} coins but want to use {amount} coins'
+                f'You have {self.wallet.get_balance()} coins but want to use {amount} coins'
             )
 
         while (input_amount <= amount):
@@ -56,7 +70,7 @@ class Node:
             return None
 
         return Transaction(self.wallet.public_key, receiver_address, amount,
-                           transaction_inputs, self.wallet._private_key)
+                           transaction_inputs, self.wallet.private_key)
 
     def broadcast_transaction(self):
         pass

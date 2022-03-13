@@ -1,7 +1,8 @@
+import uuid
 import time
 from dataclasses import dataclass
 
-import crypto
+from src.pkg import crypto
 
 
 @dataclass
@@ -11,7 +12,7 @@ class TransactionOutput:
     transaction_id: str
     receiver: str
     value: int
-    id: int = crypto.get_random_hash()
+    id: int = uuid.uuid4().int
 
 
 @dataclass

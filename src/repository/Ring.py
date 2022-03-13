@@ -6,7 +6,7 @@ class RingNode:
     """Contains the data of a node in the ring
     """
     id: str
-    ip: str
+    host: str
     port: str
     public_key: str
     balance: str
@@ -14,7 +14,7 @@ class RingNode:
 
 class Ring:
 
-    def __init__(self, ring: list(RingNode) = []) -> None:
+    def __init__(self, ring: list[RingNode] = []) -> None:
         self.ring = ring
 
     def append(self, node: RingNode):
