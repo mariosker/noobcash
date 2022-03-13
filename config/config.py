@@ -19,3 +19,11 @@ PORT = os.getenv('PORT', None)
 
 if IS_BOOTSRAP:
     PORT = BOOTSTRAP_PORT
+
+TRANSACTION_URL = '/transactions'
+TRANSACTION_VALIDATE_URL = '/transactions/validate'
+BALANCE_URL = '/balance'
+NODE_REGISTER_URL = '/node/register'
+NODE_BLOCK_URL = '/node/block'
+NODE_BLOCKCHAIN_URL = '/node/blockchain'
+RING_URL = '/ring'

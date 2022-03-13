@@ -2,8 +2,8 @@ import argparse
 
 from flask import Flask
 
-from src import config
-from src.adapters.adapters import Adapters
+from config import config
+from src.repository.adapters import Adapters
 from src.routes import RouteHandler
 
 

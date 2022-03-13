@@ -1,5 +1,5 @@
 from flask import request
-
+from config import config
 
 class RouteHandler:
 
@@ -13,18 +13,18 @@ class RouteHandler:
 
     def _init_endpoints(self):
         add_endpoint = self._add_endpoint
-        add_endpoint('/transactions', self.create_transaction, methods=['POST'])
-        add_endpoint('/transactions',
+        add_endpoint(config.TRANSACTION_URL, self.create_transaction, methods=['POST'])
+        add_endpoint(config.TRANSACTION_URL,
                      self.get_transactions_from_last_block,
                      methods=['GET'])
-        add_endpoint('/transactions/validate',
+        add_endpoint(config.TRANSACTION_VALIDATE_URL,
                      self.validate_transaction,
                      methods=['GET'])
-        add_endpoint('/balance', self.get_balance, methods=['GET'])
-        add_endpoint('/node/register', self.register_node, methods=['POST'])
-        add_endpoint('/nodes/blockchain', self.get_chain, methods=['GET'])
-        add_endpoint('/nodes/block', self.create_block, methods=['POST'])
-        add_endpoint('/ring', self.set_ring, methods=['POST'])
+        add_endpoint(config.BALANCE_URL, self.get_balance, methods=['GET'])
+        add_endpoint(config.NODE_REGISTER_URL, self.register_node, methods=['POST'])
+        add_endpoint(config.NODE_BLOCKCHAIN_URL, self.get_chain, methods=['GET'])
+        add_endpoint(config.NODE_BLOCK_URL, self.create_block, methods=['POST'])
+        add_endpoint(config.RING_URL, self.set_ring, methods=['POST'])
 
     def create_transaction(self):
         receiver_address = request.args.get("receiver_address")

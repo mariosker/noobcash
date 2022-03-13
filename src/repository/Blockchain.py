@@ -1,4 +1,4 @@
-from src.repository.Block import Block
+from src.repository.block import Block
 
 
 class Blockchain:

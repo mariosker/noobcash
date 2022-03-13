@@ -20,6 +20,9 @@ class Ring:
     def append(self, node: RingNode):
         self.ring.append(node)
 
+    def __len__(self):
+        return len(self.ring)
+
     def get_node(self, key):
         try:
             return next(n for n in self.ring if key(n))

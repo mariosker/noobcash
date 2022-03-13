@@ -1,23 +1,17 @@
-from src.usecases.transaction_usecase import TransactionUsecase
-from src.usecases.wallet_usecase import WalletUsecase
+from src.usecases.block_usecase import BlockUsecase
+from src.usecases.bootstrap_node_usecase import BootstrapNodeUsecase
 from src.usecases.chain_usecase import ChainUsecase
 from src.usecases.node_usecase import NodeUsecase
-from src.usecases.block_usecase import BlockUsecase
 from src.usecases.ring_usecase import RingUsecase
-from src.repository.Node import Node
+from src.usecases.transaction_usecase import TransactionUsecase
+from src.usecases.wallet_usecase import WalletUsecase
 
 
 class Adapters:
 
     def __init__(self, is_bootstrap: bool = False, node_count: int = 0):
-        self.node = self._create_bootstrap_node(
-        ) if is_bootstrap else self._create_node()
-
-    def _create_node(self):
-        pass
-
-    def _create_bootstrap_node(self):
-        node = Node()
+        self.node = BootstrapNodeUsecase(
+        ) if is_bootstrap else NodeUsecase()
 
     def create_transaction(self, receiver_address: str, amount: int):
         transaction = TransactionUsecase(self.node)

@@ -1,10 +1,7 @@
-from src.repository import Node
+from src.repository.node import Node
 
 
 class NodeUsecase:
 
-    def __init__(self, node: Node) -> None:
-        self.node = node
-
-    def register(self):
-        self.node.register_node()
+    def __init__(self, uid):
+        self.node = Node(uid)

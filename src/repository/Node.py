@@ -1,36 +1,78 @@
+import pickle
 import socket
 from collections import deque
-
-from src import config
-from src.repository.Block import Block
-from src.repository.Blockchain import Blockchain
-from src.repository.Ring import Ring, RingNode
-from src.repository.Transaction import Transaction, TransactionInput
-from src.repository.Wallet import Wallet
+from config import config
+import requests
+from src.repository.block import Block
+from src.repository.blockchain import Blockchain
+from src.repository.ring import Ring, RingNode
+from src.repository.transaction import Transaction, TransactionInput
+from src.repository.wallet import Wallet
 
 
 class Node:
     """User using the blockchain
     """
 
-    def __init__(self, uid=0) -> None:
+    def __init__(
+        self,
+        uid: int = None,
+        ring: Ring = Ring(),
+        blockchain: Blockchain = Blockchain()
+    ) -> None:
+
         self.wallet = Wallet()
-        self.blockchain = Blockchain()
-        self.node_info = RingNode(id=uid,
-                                  host=socket.gethostname,
+        self.blockchain = blockchain
+        self.ring = ring
+        self.current_block = None
+        self.blocks_to_mine = deque()
+        if uid == 0:
+            self.node_info = RingNode(id=uid,
+                                  host=socket.gethostname(),
                                   port=config.PORT,
                                   public_key=self.wallet.public_key,
                                   balance=self.wallet.get_balance())
-        self.current_block = None
-        self.blocks_to_mine = deque()
-        if not uid:
-            self.init_bootstrap()
-            self.ring = Ring()
 
-    def init_bootstrap(self):
-        #TODO:
-        self.ring.append(self.node_info)
-        self.create_genesis_block()
+            self.ring.append(self.node_info)
+            self.create_genesis_block()
+        else:
+            self.node_info = self.get_node_info_from_bootstrap()
+
+    def get_node_info_from_bootstrap(self) -> RingNode:
+        """ As a client request from Bootstrap to return the proper NodeInfo with updated ID
+
+        Raises:
+            ConnectionRefusedError: Request denied
+        """
+        ring_node_serial = pickle.dumps(self.node_info)
+
+        resp = requests.post(config.BOOTSTRAP_HOST + ':' +
+                             config.BOOTSTRAP_PORT + config.NODE_REGISTER_URL,
+                             data={'node': ring_node_serial})
+
+        if resp.status_code != 200:
+            raise ConnectionRefusedError("Cannot get uid from bootstrap")
+
+        return pickle.loads(resp.get_data())
+
+    def register_node(self, node_info: RingNode):
+        """ As a bootstrap add the node to the ring and update it's id
+
+        Args:
+            node_info (RingNode): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        if len(self.ring) > config.MAX_USER_COUNT:
+            raise ValueError('')
+
+        node_info.id = len(self.ring)
+        self.ring.append(node_info)
+
+       # broadcast to ring
+
+        return node_info
 
     def create_genesis_block(self):
         genesis_amount = 100 * config.MAX_USER_COUNT
@@ -102,7 +144,7 @@ class Node:
                 c for c in chains
                 if c >= len(self.blockchain.chain) and c.validate_chain())
         except StopIteration:
-            # No such chain handle this
+            # No such chain handles this
             pass
 
     def mine_block(self, block: Block):

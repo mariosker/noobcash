@@ -1,6 +1,6 @@
 import time
-from src.repository.Transaction import Transaction
-from src import config
+from src.repository.transaction import Transaction
+from config import config
 from src.pkg import crypto
 
 
