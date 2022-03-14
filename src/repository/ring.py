@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from src.repository.transaction import Transaction
+
 
 @dataclass
 class RingNode:
@@ -37,3 +39,10 @@ class Ring:
     def __iter__(self):
         for each in self.ring:
             yield each
+
+    def update_balance(self, transaction: Transaction):
+        for node in self.ring:
+            if node.public_key == transaction.sender_address:
+                node.balance -= transaction.amount
+            if node.public_key == transaction.receiver_address:
+                node.balance += transaction.amount

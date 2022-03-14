@@ -47,3 +47,11 @@ class Blockchain:
         if all(self.validate_block(block) for block in self.chain[1:]):
             return True
         return False
+
+    def __len__(self):
+        return len(self.chain)
+
+    def get_last_block(self) -> Block:
+        if not self.chain:
+            return None
+        return self.chain[-1]
