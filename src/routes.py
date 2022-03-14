@@ -26,9 +26,6 @@ class RouteHandler:
         add_endpoint(config.TRANSACTION_URL,
                      self.get_transactions_from_last_block,
                      methods=['GET'])
-        add_endpoint(config.TRANSACTION_VALIDATE_URL,
-                     self.validate_transaction,
-                     methods=['GET'])
         add_endpoint(config.BALANCE_URL, self.get_balance, methods=['GET'])
         add_endpoint(config.NODE_REGISTER_URL,
                      self.register_node,
@@ -36,16 +33,15 @@ class RouteHandler:
         add_endpoint(config.NODE_BLOCKCHAIN_URL,
                      self.get_chain,
                      methods=['GET'])
-        add_endpoint(config.NODE_BLOCK_URL,
-                     self.create_block, methods=['POST'])
+        add_endpoint(config.NODE_BLOCK_URL, self.create_block, methods=['POST'])
         add_endpoint(config.NODE_SET_INFO_URL, self.set_info, methods=['POST'])
 
     def create_transaction(self):
         receiver_address = request.args.get("receiver_address")
         amount = request.args.get("amount")
         if self.adapter.create_transaction(receiver_address, amount):
-            return('could not create transaction', 500)
-        return('transaction created successfully', 200)
+            return ('could not create transaction', 500)
+        return ('transaction created successfully', 200)
 
     def register_transaction_to_block(self):
         transaction = pickle.loads(request.get_data())
@@ -53,9 +49,6 @@ class RouteHandler:
 
     def get_transactions_from_last_block(self):
         self.adapter.get_transactions_from_last_block()
-
-    def validate_transaction(self):
-        self.adapter.validate_transaction()
 
     def get_balance(self):
         return str(self.adapter.get_balance())

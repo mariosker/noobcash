@@ -25,7 +25,6 @@ if IS_BOOTSRAP:
 
 TRANSACTION_URL = '/transactions'
 TRANSACTION_REGISTER_URL = '/transactions/register'
-TRANSACTION_VALIDATE_URL = '/transactions/validate'
 BALANCE_URL = '/balance'
 NODE_REGISTER_URL = '/node/register'
 NODE_BLOCK_URL = '/node/block'
