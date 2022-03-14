@@ -1,5 +1,7 @@
-import uuid
+from __future__ import annotations
+
 import time
+import uuid
 from dataclasses import dataclass
 
 from src.pkg import crypto
@@ -27,13 +29,14 @@ class Transaction:
     """Transaction that goes in the block
     """
 
-    def __init__(self, sender_address, receiver_address, amount,
-                 transaction_inputs, private_key) -> None:
+    def __init__(self, sender_address: bytes, receiver_address: bytes,
+                 amount: int, transaction_inputs: list[TransactionInput],
+                 private_key: bytes) -> None:
         self.sender_address = sender_address
         self.receiver_address = receiver_address
         self.amount = amount
         self.transaction_inputs = transaction_inputs
-        self.transaction_outputs = self.get_transaction_outputs
+        self.transaction_outputs = self.get_transaction_outputs()
         self.timestamp = time.time()
         self.transaction_id = self.calculate_hash()
         self.signature = self.sign_transaction(private_key)
@@ -49,7 +52,7 @@ class Transaction:
             self.amount) + str(self.timestamp)
         return crypto.hash_to_str(to_hash)
 
-    def sign_transaction(self, private_key: crypto.rsa.RSAPrivateKey):
+    def sign_transaction(self, private_key: bytes):
         """signs the transaction
 
         Args:
@@ -81,7 +84,7 @@ class Transaction:
             list(TransactionOutput): list of the two outputs
         """
         total_input_amount = sum(
-            input['value'] for input in self.transaction_inputs)
+            input.value for input in self.transaction_inputs)
 
         sender_output = TransactionOutput(transaction_id=self.transaction_id,
                                           receiver=self.sender_address,
