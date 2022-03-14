@@ -8,8 +8,7 @@ from config import config
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
 from src.repository.ring import Ring, RingNode
-from src.repository.transaction import (Transaction, TransactionInput,
-                                        TransactionOutput)
+from src.repository.transaction import Transaction, TransactionInput
 from src.repository.wallet import Wallet
 
 
@@ -48,7 +47,7 @@ class Node:
         data_pickled = pickle.dumps(data)
         self.broadcast(config.NODE_SET_INFO_URL, data_pickled)
 
-    def create_transaction(self, receiver_address, amount):
+    def create_transaction(self, receiver_address: str, amount: int):
         transaction_inputs = []
         transactions_to_be_spent = deque()
         input_amount = 0
@@ -65,7 +64,7 @@ class Node:
             transaction_inputs.append(
                 TransactionInput(current_utxo.id, current_utxo.value))
 
-        transaction = Transaction(self.wallet.public_key, receiver_address,
+        transaction = Transaction(self.wallet.public_key, bytes(receiver_address),
                                   amount, transaction_inputs,
                                   self.wallet.private_key)
 
