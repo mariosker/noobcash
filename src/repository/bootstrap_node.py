@@ -37,7 +37,7 @@ class BootstrapNode(Node):
         self.ring.append(node_info)
         if len(self.ring) == config.MAX_USER_COUNT:
             # spawn a thread to broadcast the ring to every node.
-            Thread(target=self._broadcast_ring).start()
+            Thread(target=self._broadcast_current_state).start()
 
         return node_info
 

@@ -53,3 +53,6 @@ class Block:
         else:
             raise ValueError(
                 f'Block reached capacity of {config.BLOCK_CAPACITY}.')
+
+    def get_transactions(self):
+        return self.transactions

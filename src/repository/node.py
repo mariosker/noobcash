@@ -1,10 +1,7 @@
 import pickle
-import queue
 from collections import deque
-from readline import append_history_file
 from threading import Thread
 from time import sleep
-from turtle import update
 
 import requests
 from config import config
@@ -46,7 +43,7 @@ class Node:
 
         return responses
 
-    def _broadcast_ring(self):
+    def _broadcast_current_state(self):
         data = {'ring': self.ring, 'blockchain': self.blockchain}
         data_pickled = pickle.dumps(data)
         self.broadcast(config.NODE_SET_INFO_URL, data_pickled)
@@ -92,6 +89,7 @@ class Node:
         if not self.validate_transaction(transaction):
             raise ValueError('Transaction not valid')
 
+        self.update_transactions(transaction)
         self.pending_transactions.append(transaction)
 
     def validate_transaction(self, transaction: Transaction):
@@ -151,27 +149,27 @@ class Node:
             else:
                 self.pending_transactions.extendleft(transactions)
 
-    def update_transactions(self, block: Block):
-        for transaction in block.transactions:
-            try:
-                self.wallet.update_wallet(transaction)
-            except:
-                pass
-            self.ring.update_balance(transaction)
+    def update_transactions(self, transaction: Transaction):
+        try:
+            self.wallet.update_wallet(transaction)
+        except:
+            pass
+        self.ring.update_balance(transaction)
 
     def _register_mined_block(self, block: Block):
         self.blockchain.add_block(block)
-        self.update_transactions(block)
 
     def register_incoming_block(self, block: Block):
         self.can_mine = False
         sleep(3)
         try:
             self.blockchain.add_block(block)
-            self.update_transactions(block)
 
             for transaction in block.transactions:
-                self.pending_transactions.remove(transaction)
+                if transaction in self.pending_transactions:
+                    self.pending_transactions.remove(transaction)
+                else:
+                    self.update_transactions(transaction)
         except:
             self.resolve_conflict()
         self.can_mine = True

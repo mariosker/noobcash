@@ -55,3 +55,6 @@ class Blockchain:
         if not self.chain:
             return None
         return self.chain[-1]
+
+    def get_chain(self):
+        return self.chain

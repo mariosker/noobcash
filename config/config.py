@@ -29,7 +29,6 @@ TRANSACTION_REGISTER_URL = '/transactions/register'
 BALANCE_URL = '/balance'
 
 NODE_REGISTER_URL = '/node/register'
-NODE_BLOCK_URL = '/node/block'
 NODE_SET_INFO_URL = '/node/info'
 NODE_BLOCKCHAIN_URL = '/node/blockchain'
 

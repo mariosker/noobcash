@@ -2,7 +2,6 @@ import pickle
 
 from config import config
 from flask import request
-from numpy import block
 
 
 class RouteHandler:
@@ -39,10 +38,15 @@ class RouteHandler:
         add_endpoint(config.NODE_BLOCKCHAIN_URL,
                      self.get_chain,
                      methods=['GET'])
-        add_endpoint(config.NODE_BLOCK_URL, self.create_block, methods=['POST'])
+
         add_endpoint(config.NODE_SET_INFO_URL, self.set_info, methods=['POST'])
 
     def create_transaction(self):
+        """_summary_
+
+        Returns:
+            _type_: _description_
+        """
         receiver_address = request.args.get("receiver_address")
         amount = request.args.get("amount")
         if self.adapter.create_transaction(receiver_address, amount):
@@ -58,7 +62,7 @@ class RouteHandler:
         return self.adapter.register_incoming_block(block)
 
     def get_transactions_from_last_block(self):
-        self.adapter.get_transactions_from_last_block()
+        return self.adapter.get_transactions_from_last_block()
 
     def get_balance(self):
         return str(self.adapter.get_balance())
@@ -70,9 +74,6 @@ class RouteHandler:
 
     def get_chain(self):
         self.adapter.get_chain()
-
-    def create_block(self):
-        self.adapter.create_block()
 
     def set_info(self):
         data = pickle.loads(request.get_data())

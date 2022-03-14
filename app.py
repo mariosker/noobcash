@@ -8,16 +8,16 @@ from src.p2p_adapters import P2PAdapters
 from src.routes import RouteHandler
 
 
-def main(is_bootstrap, port):
+def main():
     app = Flask(__name__)
 
-    if is_bootstrap:
-        adapterServices = BootstapAdapters()
+    if config.IS_BOOTSRAP:
+        adapter_services = BootstapAdapters()
     else:
-        adapterServices = P2PAdapters()
-    RouteHandler(app, adapterServices)
+        adapter_services = P2PAdapters()
+    RouteHandler(app, adapter_services)
 
-    app.run(port=port)
+    app.run(config.PORT)
 
 
 if __name__ == "__main__":
@@ -44,4 +44,4 @@ if __name__ == "__main__":
     config.MAX_USER_COUNT = config.MAX_USER_COUNT if config.MAX_USER_COUNT else args.nodes
     config.PORT = str(config.PORT if config.PORT else args.port)
 
-    main(config.IS_BOOTSRAP, config.PORT)
+    main()
