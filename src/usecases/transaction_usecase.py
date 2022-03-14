@@ -1,9 +1,10 @@
-from src.repository import node, transaction
+from src.repository.node import Node
+from src.repository.transaction import Transaction
 
 
 class TransactionUsecase:
 
-    def __init__(self, node: node) -> None:
+    def __init__(self, node: Node) -> None:
         self.node = node
 
     def create(self, receiver_address: str, amount: int):
@@ -11,11 +12,11 @@ class TransactionUsecase:
 
     def get_transactions_from_last_block(self):
         last_block = self.node.blockchain.get_last_block()
-        if not last_block: return []
-
+        if not last_block:
+            return []
         transactions = last_block.get_transactions()
 
         return [vars(t) for t in transactions]
 
-    def register(self):
-        self.node.register_transaction()
+    def register(self, transaction: Transaction):
+        self.node.register_transaction(transaction)

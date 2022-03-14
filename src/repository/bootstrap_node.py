@@ -46,7 +46,6 @@ class BootstrapNode(Node):
         genesis_transaction = Transaction('0', self.wallet.public_key,
                                           genesis_amount, [],
                                           self.wallet.private_key)
-        self.wallet.transactions.append(genesis_transaction)
-        [_, receiver_outout] = genesis_transaction.get_transaction_outputs()
-        self.wallet.unspent_transactions.append(receiver_outout)
+        [_, receiver_output] = genesis_transaction.transaction_outputs
+        self.wallet.unspent_transactions.append(receiver_output)
         return Block(0, 1, [genesis_transaction])

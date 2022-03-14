@@ -9,7 +9,7 @@ class NodeUsecase():
     def __init__(self):
         self.node = Node()
 
-    def set_blockchain(self, blockchain: Blockchain):
+    def set_chain(self, blockchain: Blockchain):
         self.node.set_blockchain(blockchain)
 
     def register_transaction(self, transaction: Transaction):

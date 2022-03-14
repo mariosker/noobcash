@@ -5,7 +5,7 @@ class Blockchain:
     """ Contains the blocks of the blockchain
     """
 
-    def __init__(self, chain: list[Block] = []) -> None:
+    def __init__(self, chain: list[Block] = None) -> None:
         self.chain = chain
 
     def add_block(self, block: Block):

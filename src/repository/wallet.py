@@ -1,7 +1,6 @@
 from collections import deque
 
 from src.pkg import crypto
-from src.repository.block import Block
 from src.repository.transaction import Transaction
 
 

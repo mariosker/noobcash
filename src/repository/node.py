@@ -134,7 +134,7 @@ class Node:
             ]
 
             pending_block = Block(len(self.blockchain),
-                                  Blockchain.get_last_block().current_hash,
+                                  self.blockchain.get_last_block().current_hash,
                                   transactions)
 
             self.mine_block(pending_block)
@@ -152,8 +152,8 @@ class Node:
     def update_transactions(self, transaction: Transaction):
         try:
             self.wallet.update_wallet(transaction)
-        except:
-            pass
+        except Exception as err:
+            config.logging.debug(err)
         self.ring.update_balance(transaction)
 
     def _register_mined_block(self, block: Block):
@@ -170,7 +170,8 @@ class Node:
                     self.pending_transactions.remove(transaction)
                 else:
                     self.update_transactions(transaction)
-        except:
+        except Exception as err:
+            config.logging.debug(err)
             self.resolve_conflict()
         self.can_mine = True
 

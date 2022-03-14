@@ -36,9 +36,9 @@ class Transaction:
         self.receiver_address = receiver_address
         self.amount = amount
         self.transaction_inputs = transaction_inputs
-        self.transaction_outputs = self.get_transaction_outputs()
         self.timestamp = time.time()
         self.transaction_id = self.calculate_hash()
+        self.transaction_outputs = self.get_transaction_outputs()
         self.signature = self.sign_transaction(private_key)
 
     def calculate_hash(self):
@@ -96,3 +96,6 @@ class Transaction:
                                             value=self.amount)
 
         return [sender_output, receiver_output]
+
+    def __lt__(self, other: Transaction):
+        return self.timestamp < other.timestamp

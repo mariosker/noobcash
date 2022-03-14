@@ -1,9 +1,9 @@
-from src.repository import node
+from src.repository.node import Node
 
 
 class ChainUsecase:
 
-    def __init__(self, node: node) -> None:
+    def __init__(self, node: Node) -> None:
         self.node = node
 
     def get_chain(self):

@@ -12,7 +12,7 @@ class Block:
     def __init__(self,
                  index: int,
                  previous_hash: str = "",
-                 transactions: list[Transaction] = []) -> None:
+                 transactions: list[Transaction] = None) -> None:
         """Generate a new block.
 
         Args:
@@ -50,9 +50,8 @@ class Block:
         if len(self.transactions) < config.BLOCK_CAPACITY:
             self.transactions.append(transaction)
             return self.transactions
-        else:
-            raise ValueError(
-                f'Block reached capacity of {config.BLOCK_CAPACITY}.')
+        raise ValueError(
+            f'Block reached capacity of {config.BLOCK_CAPACITY}.')
 
     def get_transactions(self):
         return self.transactions

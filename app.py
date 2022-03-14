@@ -3,9 +3,8 @@ import argparse
 from flask import Flask
 
 from config import config
-from src.bootstrap_adapters import BootstapAdapters
-from src.p2p_adapters import P2PAdapters
-from src.routes import RouteHandler
+from src.adapters import BootstapAdapters, P2PAdapters
+from src.routes import BootstrapRouteHandler, P2PRouteHandler
 
 
 def main():
@@ -13,11 +12,12 @@ def main():
 
     if config.IS_BOOTSRAP:
         adapter_services = BootstapAdapters()
+        BootstrapRouteHandler(app, adapter_services)
     else:
         adapter_services = P2PAdapters()
-    RouteHandler(app, adapter_services)
+        P2PRouteHandler(app, adapter_services)
 
-    app.run(config.PORT)
+    app.run()
 
 
 if __name__ == "__main__":
