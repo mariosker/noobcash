@@ -1,3 +1,4 @@
+from src.repository.block import Block
 from src.repository.blockchain import Blockchain
 from src.repository.transaction import Transaction
 from src.usecases.block_usecase import BlockUsecase
@@ -19,6 +20,9 @@ class Adapters:
     def register_transaction_to_block(self, transaction: Transaction):
         transaction = TransactionUsecase(self.usecase.node)
         transaction.register(transaction)
+
+    def register_incoming_block(self, block: Block):
+        self.usecase.register_incoming_block(block)
 
     def get_transactions_from_last_block(self):
         transaction = TransactionUsecase(self.usecase.node)

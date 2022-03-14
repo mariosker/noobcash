@@ -3,6 +3,7 @@ import queue
 from collections import deque
 from readline import append_history_file
 from threading import Thread
+from time import sleep
 from turtle import update
 
 import requests
@@ -30,6 +31,7 @@ class Node:
                                   public_key=self.wallet.public_key,
                                   balance=self.wallet.get_balance())
         self.pending_transactions = deque()
+        self.can_mine = True
 
         Thread(target=self.handle_pending_transactions).start()
 
@@ -107,22 +109,14 @@ class Node:
 
         return False
 
-    # def resolve_conflict(self):
-    #     # TODO: implement chains
-    #     chains = list()
-    #     chains.sort(key=lambda x: len(x), reverse=True)
-    #     try:
-    #         selected_chain = next(
-    #             c for c in chains
-    #             if c >= len(self.blockchain.chain) and c.validate_chain())
-    #     except StopIteration:
-    #         # No such chain handles this
-    #         pass
+    def resolve_conflict(self):
+        pass
 
     def mine_block(self, block: Block):
         """Mines the block until it begins with MINING_DIFFICULTY zeroes
         """
-        while not block.current_hash.startswith('0' * config.MINING_DIFFICULTY):
+        while not block.current_hash.startswith(
+                '0' * config.MINING_DIFFICULTY) and self.can_mine:
             block.nonce += 1
             block.current_hash = block.calculate_hash()
 
@@ -130,8 +124,10 @@ class Node:
         self.blockchain = blockchain
 
     def handle_pending_transactions(self):
+        # TODO: check locks and stuff
         while True:
-            if len(self.pending_transactions) < config.BLOCK_CAPACITY:
+            if len(self.pending_transactions
+                  ) < config.BLOCK_CAPACITY or not self.can_mine:
                 continue
 
             transactions = [
@@ -145,11 +141,14 @@ class Node:
 
             self.mine_block(pending_block)
 
-            self._broadcast_block(pending_block)
+            if self.can_mine:
+                self._broadcast_block(pending_block)
 
-            try:
-                self.register_block(pending_block)
-            except ValueError:
+                try:
+                    self._register_mined_block(pending_block)
+                except ValueError:
+                    self.pending_transactions.extendleft(transactions)
+            else:
                 self.pending_transactions.extendleft(transactions)
 
     def update_transactions(self, block: Block):
@@ -160,9 +159,22 @@ class Node:
                 pass
             self.ring.update_balance(transaction)
 
-    def register_block(self, block: Block):
+    def _register_mined_block(self, block: Block):
         self.blockchain.add_block(block)
         self.update_transactions(block)
+
+    def register_incoming_block(self, block: Block):
+        self.can_mine = False
+        sleep(3)
+        try:
+            self.blockchain.add_block(block)
+            self.update_transactions(block)
+
+            for transaction in block.transactions:
+                self.pending_transactions.remove(transaction)
+        except:
+            self.resolve_conflict()
+        self.can_mine = True
 
     def _broadcast_block(self, block: Block):
         data_pickled = pickle.dumps(block)

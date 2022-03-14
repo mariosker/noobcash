@@ -23,5 +23,8 @@ class Wallet:
         if self.public_key == transaction.receiver_address:
             _, utxo = transaction.transaction_outputs
             self.unspent_transactions.append(utxo)
+        elif self.public_key == transaction.sender_address:
+            utxo, _ = transaction.transaction_outputs
+            self.unspent_transactions.append(utxo)
         else:
-            raise ValueError("Wallet is not the receiver in the transaction")
+            raise ValueError("Wallet is not in the transaction")
