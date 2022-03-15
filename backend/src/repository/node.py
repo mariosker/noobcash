@@ -12,7 +12,7 @@ from src.repository.transaction import Transaction, TransactionInput
 from src.repository.wallet import Wallet
 
 
-class Node:
+class _Node:
     """User using the blockchain
     """
 
@@ -32,7 +32,6 @@ class Node:
         Thread(target=self.handle_pending_transactions).start()
 
     def broadcast(self, URL: str, obj):
-        # TODO: maybe add threading
         responses = []
         for node in self.ring:
             if node == self.node_info:
@@ -41,11 +40,6 @@ class Node:
                 requests.post(node.host + ':' + node.port + URL, data=obj))
 
         return responses
-
-    def _broadcast_current_state(self):
-        data = {'ring': self.ring, 'blockchain': self.blockchain}
-        data_pickled = pickle.dumps(data)
-        self.broadcast(config.NODE_SET_INFO_URL, data_pickled)
 
     def create_transaction(self, receiver_address: str, amount: int):
         transaction_inputs = []
@@ -64,9 +58,9 @@ class Node:
             transaction_inputs.append(
                 TransactionInput(current_utxo.id, current_utxo.value))
 
-        transaction = Transaction(self.wallet.public_key, bytes(receiver_address),
-                                  amount, transaction_inputs,
-                                  self.wallet.private_key)
+        transaction = Transaction(self.wallet.public_key,
+                                  bytes(receiver_address), amount,
+                                  transaction_inputs, self.wallet.private_key)
 
         if not self.validate_transaction(transaction):
             self.wallet.unspent_transactions.extend(transactions_to_be_spent)

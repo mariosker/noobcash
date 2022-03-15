@@ -47,13 +47,13 @@ class Transaction:
         Returns:
             str: the hash as a string
         """
-        # TODO: Add more to hash
         to_hash = str(self.sender_address) + str(self.receiver_address) + str(
-            self.amount) + str(self.timestamp)
+            self.amount) + str(self.timestamp) + "".join(
+                str(vars(t)) for t in self.transaction_inputs)
         return crypto.hash_to_str(to_hash)
 
     def sign_transaction(self, private_key: bytes):
-        """signs the transaction
+        """Signs the transaction
 
         Args:
             private_key (rsa.RSAPrivateKey): The private key of the wallet

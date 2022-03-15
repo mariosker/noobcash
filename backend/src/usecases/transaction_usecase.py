@@ -1,10 +1,10 @@
-from src.repository.node import Node
+from src.repository.node import _Node
 from src.repository.transaction import Transaction
 
 
 class TransactionUsecase:
 
-    def __init__(self, node: Node) -> None:
+    def __init__(self, node: _Node) -> None:
         self.node = node
 
     def create(self, receiver_address: str, amount: int):

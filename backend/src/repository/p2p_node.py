@@ -2,11 +2,11 @@ import pickle
 
 import requests
 from config import config
-from src.repository.node import Node
+from src.repository.node import _Node
 from src.repository.ring import Ring, RingNode
 
 
-class P2PNode(Node):
+class P2PNode(_Node):
     def __init__(self) -> None:
         super().__init__()
         self.node_info = self._get_node_info_from_bootstrap()

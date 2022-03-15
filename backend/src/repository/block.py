@@ -37,21 +37,22 @@ class Block:
                 str(vars(t)) for t in self.transactions)
         return crypto.hash_to_str(to_hash)
 
-    def add_transaction(self, transaction) -> Transaction:
-        """Adds a transaction to the block
+    # TODO: Delete
+    # def add_transaction(self, transaction) -> Transaction:
+    #     """Adds a transaction to the block
 
-        Args:
-            transaction (Transaction): The transaction to be added
+    #     Args:
+    #         transaction (Transaction): The transaction to be added
 
-        Raises:
-            ValueError: Error if block is full
-        """
-        # TODO: check if transaction is valid
-        if len(self.transactions) < config.BLOCK_CAPACITY:
-            self.transactions.append(transaction)
-            return self.transactions
-        raise ValueError(
-            f'Block reached capacity of {config.BLOCK_CAPACITY}.')
+    #     Raises:
+    #         ValueError: Error if block is full
+    #     """
+    #     # TODO: check if transaction is valid
+    #     if len(self.transactions) < config.BLOCK_CAPACITY:
+    #         self.transactions.append(transaction)
+    #         return self.transactions
+    #     raise ValueError(
+    #         f'Block reached capacity of {config.BLOCK_CAPACITY}.')
 
     def get_transactions(self):
         return self.transactions

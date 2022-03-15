@@ -1,14 +1,15 @@
+import pickle
 from threading import Thread
 
 from config import config
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
-from src.repository.node import Node
+from src.repository.node import _Node
 from src.repository.ring import RingNode
 from src.repository.transaction import Transaction
 
 
-class BootstrapNode(Node):
+class BootstrapNode(_Node):
 
     def __init__(self):
         super().__init__()
@@ -19,8 +20,8 @@ class BootstrapNode(Node):
                                   balance=self.wallet.get_balance())
 
         self.ring.append(self.node_info)
-        self.current_block = self._create_genesis_block()
-        self.blockchain = Blockchain([self.current_block])
+        self.genesis_block = self._create_genesis_block()
+        self.blockchain = Blockchain([self.genesis_block])
 
     def register_node(self, node_info: RingNode):
         """ As a bootstrap add the node to the ring and update it's id
@@ -36,7 +37,6 @@ class BootstrapNode(Node):
         node_info.id = len(self.ring)
         self.ring.append(node_info)
         if len(self.ring) == config.MAX_USER_COUNT:
-            # spawn a thread to broadcast the ring to every node.
             Thread(target=self._broadcast_current_state).start()
 
         return node_info
@@ -48,4 +48,10 @@ class BootstrapNode(Node):
                                           self.wallet.private_key)
         [_, receiver_output] = genesis_transaction.transaction_outputs
         self.wallet.unspent_transactions.append(receiver_output)
+        self.ring.update_balance(genesis_transaction)
         return Block(0, 1, [genesis_transaction])
+
+    def _broadcast_current_state(self):
+        data = {'ring': self.ring, 'blockchain': self.blockchain}
+        data_pickled = pickle.dumps(data)
+        self.broadcast(config.NODE_SET_INFO_URL, data_pickled)
