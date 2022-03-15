@@ -21,11 +21,13 @@ class P2PNode(_Node):
         tmp_node_info = RingNode(id=-1,
                                  host=config.HOST,
                                  port=config.PORT,
-                                 public_key=self.wallet.public_key)
+                                 public_key=self.wallet.public_key,
+                                 utxos=[],
+                                 balance=self.wallet.get_balance())
 
         ring_node_serial = pickle.dumps(tmp_node_info)
 
-        resp = requests.post(config.BOOTSTRAP_HOST + ':' +
+        resp = requests.post('http://' + config.BOOTSTRAP_HOST + ':' +
                              config.BOOTSTRAP_PORT + config.NODE_REGISTER_URL,
                              data=ring_node_serial)
 

@@ -1,0 +1,71 @@
+version: "3.3"
+
+services: 
+  bootstrap-node:
+    image: app
+    build:
+      context: ./../
+      dockerfile: infra/Dockerfile
+    environment:
+      IS_BOOTSTRAP: "true"
+      HOST: 192.168.1.10
+      PORT: 1000
+      BOOTSTRAP_HOST: 192.168.1.10
+      BOOTSTRAP_PORT: 1000
+      MAX_USER_COUNT: 3
+      BLOCK_CAPACITY: 2
+      MINING_DIFFICULTY: 4
+    ports:
+      - "1000:1000/tcp"
+    networks:
+      noobchain:
+        ipv4_address: 192.168.1.10
+  node-1:
+    image: app
+    build:
+      context: ./../
+      dockerfile: infra/Dockerfile
+    environment:
+      IS_BOOTSTRAP: null
+      HOST: 192.168.1.20
+      PORT: 2000
+      BOOTSTRAP_HOST: 192.168.1.10
+      BOOTSTRAP_PORT: 1000
+      MAX_USER_COUNT: 3
+      BLOCK_CAPACITY: 2
+      MINING_DIFFICULTY: 4
+    ports:
+      - "2000:2000/tcp"
+    depends_on:
+      - bootstrap-node
+    networks:
+      noobchain:
+        ipv4_address: 192.168.1.20
+  node-2:
+    image: app
+    build:
+      context: ./../
+      dockerfile: infra/Dockerfile
+    environment:
+      IS_BOOTSTRAP: null
+      HOST: 192.168.1.30
+      PORT: 3000
+      BOOTSTRAP_HOST: 192.168.1.10
+      BOOTSTRAP_PORT: 1000
+      MAX_USER_COUNT: 3
+      BLOCK_CAPACITY: 2
+      MINING_DIFFICULTY: 4
+    ports:
+      - "3000:3000/tcp"
+    depends_on:
+      - bootstrap-node
+    networks:
+      noobchain:
+        ipv4_address: 192.168.1.30
+networks:
+  noobchain:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.1.0/24
