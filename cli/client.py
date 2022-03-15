@@ -2,7 +2,7 @@ import cmd
 
 import pyfiglet
 
-from requests import RestAPI
+from rest import RestAPI
 
 
 class Noobcash(cmd.Cmd):
@@ -13,7 +13,8 @@ class Noobcash(cmd.Cmd):
     def preloop(self) -> None:
         # host = input('Enter the host of your wallet: ')
         # port = input('Enter the port of your wallet: ')
-        host = port = 1000
+        host = 'localhost'
+        port = '5000'
         self.api = RestAPI(host, port)
 
     def do_t(self, args):
@@ -21,19 +22,23 @@ class Noobcash(cmd.Cmd):
         args = args.split(" ")
         print('receiver', args[0], 'amount', args[1])
 
-    def do_get_balance(self):
+    def do_get_balance(self, _):
         'Get balance of your wallet'
-        balance = self.api.get_balance() | 0
-        print(f"You have {balance} NBC in your account")
+        try:
+            balance = self.api.get_balance()
+            print(f"You have {balance} NBC in your account")
+        except Exception as err:
+            print(err)
 
-    def do_get_transactions(self):
+    def do_get_transactions(self, args):
         'Get the transactions of the last block'
         transactions = self.api.view_last_transactions()
         print(transactions)
         return
 
-    def exit(self):
-        self.close()
+    def do_exit(self, _):
+        'Exit the CLI'
+        return True
 
 
 def main():
