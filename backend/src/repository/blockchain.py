@@ -1,5 +1,5 @@
 from src.repository.block import Block
-
+from __future__ import annotations
 
 class Blockchain:
     """ Contains the blocks of the blockchain
@@ -58,3 +58,6 @@ class Blockchain:
 
     def get_chain(self):
         return self.chain
+
+    def __lt__(self, other: Blockchain):
+        return len(self.chain) < len(other.chain)

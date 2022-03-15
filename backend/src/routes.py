@@ -42,6 +42,10 @@ class RouteHandler:
                      self.set_chain,
                      methods=['POST'])
 
+        add_endpoint(config.NODE_RING_AND_TRANSACTION,
+                     self.get_ring_and_transactions,
+                     methods=['GET'])
+
     def create_transaction(self):
         receiver_address = request.args.get("receiver_address")
         amount = request.args.get("amount")
@@ -69,6 +73,10 @@ class RouteHandler:
     def set_chain(self):
         self.adapter.set_chain()
 
+    def get_ring_and_transactions(self):
+        self.adapter.get_ring_and_transactions()
+
+
 class BootstrapRouteHandler(RouteHandler):
 
     def __init__(self, app, adapter: BootstapAdapters) -> None:
@@ -77,12 +85,15 @@ class BootstrapRouteHandler(RouteHandler):
 
     def _init_specific_endpoints(self):
         add_endpoint = self._add_endpoint
-        add_endpoint(config.NODE_REGISTER_URL, self.register_node, methods=['POST'])
+        add_endpoint(config.NODE_REGISTER_URL,
+                     self.register_node,
+                     methods=['POST'])
 
     def register_node(self):
         node_info = pickle.loads(request.get_data())
         node_info = self.adapter.register_node(node_info)
         return pickle.dumps(node_info)
+
 
 class P2PRouteHandler(RouteHandler):
 

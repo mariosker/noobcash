@@ -31,5 +31,6 @@ BALANCE_URL = '/balance'
 NODE_REGISTER_URL = '/node/register'
 NODE_SET_INFO_URL = '/node/info'
 NODE_BLOCKCHAIN_URL = '/node/blockchain'
+NODE_RING_AND_TRANSACTION = '/node/ringandtransaction'
 
 BLOCK_REGISTER_URL = '/block/register'

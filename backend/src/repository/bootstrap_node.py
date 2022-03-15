@@ -17,10 +17,11 @@ class BootstrapNode(_Node):
                                   host=config.HOST,
                                   port=config.PORT,
                                   public_key=self.wallet.public_key,
+                                  utxos=self.wallet.unspent_transactions,
                                   balance=self.wallet.get_balance())
 
-        self.ring.append(self.node_info)
         self.genesis_block = self._create_genesis_block()
+        self.ring.append(self.node_info)
         self.blockchain = Blockchain([self.genesis_block])
 
     def register_node(self, node_info: RingNode):

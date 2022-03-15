@@ -1,4 +1,5 @@
 from src.repository.node import _Node
+import pickle
 
 
 class ChainUsecase:
@@ -7,4 +8,11 @@ class ChainUsecase:
         self.node = node
 
     def get_chain(self):
-        return self.node.blockchain.get_chain()
+        chain_and_id = {
+            'blockchain': self.node.blockchain.get_chain(),
+            'id': self.node.node_info.id
+        }
+
+        chain_and_id_pickled = pickle.dumps(chain_and_id)
+
+        return chain_and_id_pickled

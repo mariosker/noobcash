@@ -2,7 +2,7 @@ from src.repository.block import Block
 from src.repository.blockchain import Blockchain
 from src.repository.ring import Ring, RingNode
 from src.repository.transaction import Transaction
-from src.usecases.blockchain_usecase import ChainUsecase
+from src.usecases.blockchain_usecase import BlockChainUsecase
 from src.usecases.bootstrap_node_usecase import BootstrapNodeUsecase
 from src.usecases.node_usecase import NodeUsecase
 from src.usecases.p2p_node_usecase import P2PNodeUsecase
@@ -26,18 +26,24 @@ class Adapters:
         return self.node_usecase.register_incoming_block(block)
 
     def get_transactions_from_last_block(self):
-        return TransactionUsecase(self.node_usecase.node).get_transactions_from_last_block()
+        return TransactionUsecase(
+            self.node_usecase.node).get_transactions_from_last_block()
 
     def get_balance(self):
         return WalletUsecase(self.node_usecase.node).get_balance()
 
     def get_chain(self):
-        return ChainUsecase(self.node_usecase.node).get_chain()
+        return BlockChainUsecase(self.node_usecase.node).get_chain()
 
     def set_chain(self, blockchain: Blockchain):
         return self.node_usecase.set_chain(blockchain)
 
+    def get_ring_and_transactions(self):
+        return self.node_usecase.get_ring_and_transactions()
+
+
 class P2PAdapters(Adapters):
+
     def __init__(self) -> None:
         super().__init__()
         self.usecase = P2PNodeUsecase()
@@ -45,7 +51,9 @@ class P2PAdapters(Adapters):
     def set_ring(self, ring: Ring):
         self.usecase.set_ring(ring)
 
+
 class BootstapAdapters(Adapters):
+
     def __init__(self):
         super().__init__()
         self.usecase = BootstrapNodeUsecase()

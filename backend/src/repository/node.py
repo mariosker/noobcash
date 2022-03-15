@@ -25,19 +25,20 @@ class _Node:
                                   host=config.HOST,
                                   port=config.PORT,
                                   public_key=self.wallet.public_key,
+                                  utxos=self.wallet.unspent_transactions,
                                   balance=self.wallet.get_balance())
         self.pending_transactions = deque()
         self.can_mine = True
 
         Thread(target=self.handle_pending_transactions).start()
 
-    def broadcast(self, URL: str, obj):
+    def broadcast(self, URL: str, obj, requests_function=requests.post):
         responses = []
         for node in self.ring:
             if node == self.node_info:
                 continue
             responses.append(
-                requests.post(node.host + ':' + node.port + URL, data=obj))
+                requests_function(node.host + ':' + node.port + URL, data=obj))
 
         return responses
 
@@ -99,9 +100,6 @@ class _Node:
             return True
 
         return False
-
-    def resolve_conflict(self):
-        pass
 
     def mine_block(self, block: Block):
         """Mines the block until it begins with MINING_DIFFICULTY zeroes
@@ -171,3 +169,48 @@ class _Node:
     def _broadcast_block(self, block: Block):
         data_pickled = pickle.dumps(block)
         self.broadcast(config.BLOCK_REGISTER_URL, data_pickled)
+
+    def _request_blockhain(self):
+        responses = self.broadcast(config.NODE_BLOCKCHAIN_URL,
+                                   None,
+                                   requests_function=requests.get)
+        return [pickle.loads(r.data) for r in responses]
+
+    def _request_ring_and_transactions_from_node(self, id):
+        response = None
+        for node in self.ring:
+            if node.id == id:
+                response = requests.get(node.host + ':' + node.port +
+                                        config.NODE_RING_AND_TRANSACTION)
+                response = pickle.loads(response.data)
+                break
+
+        return response
+
+    def resolve_confict(self):
+        # NOTE: maybe needs threading
+        responses = self._request_blockhain()
+        responses.sort(key=lambda x: x['blockchain'], reverse=True)
+
+        max_response = {'blockchain': self.blockchain, 'id': self.node_info.id}
+
+        for resp in responses:
+            if not resp['blockchain'].validate_chain():
+                continue
+
+            max_response = resp if resp['blockchain'] > max_response[
+                'blockchain'] else max_response
+
+        if max_response['id'] == self.node_info.id:
+            return
+
+        response = self._request_ring_and_transactions_from_node(
+            max_response['id'])
+
+        self.blockchain = max_response['blockchain']
+        self.ring = response['ring']
+        self.pending_transactions = response['transactions']
+
+        for node in self.ring:
+            if node.id == self.node_info.id:
+                self.wallet.unspent_transactions = node.utxos
