@@ -1,4 +1,4 @@
-import pickle
+import json
 from collections import deque
 from threading import Thread
 from time import sleep
@@ -31,21 +31,20 @@ class Node:
 
         Thread(target=self.handle_pending_transactions).start()
 
-    def broadcast(self, URL: str, obj):
+    def broadcast(self, URL: str, obj: json):
         # TODO: maybe add threading
         responses = []
         for node in self.ring:
             if node == self.node_info:
                 continue
             responses.append(
-                requests.post(node.host + ':' + node.port + URL, data=obj))
+                requests.post(node.host + ':' + node.port + URL, json=obj))
 
         return responses
 
     def _broadcast_current_state(self):
-        data = {'ring': self.ring, 'blockchain': self.blockchain}
-        data_pickled = pickle.dumps(data)
-        self.broadcast(config.NODE_SET_INFO_URL, data_pickled)
+        data = {'ring': self.ring.to_json(), 'blockchain': self.blockchain.to_json()}
+        self.broadcast(config.NODE_SET_INFO_URL, data)
 
     def create_transaction(self, receiver_address: str, amount: int):
         transaction_inputs = []
@@ -72,8 +71,7 @@ class Node:
             self.wallet.unspent_transactions.extend(transactions_to_be_spent)
             raise ValueError('Transaction is invalid')
 
-        transaction_pickled = pickle.dumps(transaction)
-        self.broadcast(config.TRANSACTION_URL, transaction_pickled)
+        self.broadcast(config.TRANSACTION_URL, {'transaction': transaction})
         self.pending_transactions.append(transaction)
 
     def register_transaction(self, transaction: Transaction):
@@ -175,5 +173,4 @@ class Node:
         self.can_mine = True
 
     def _broadcast_block(self, block: Block):
-        data_pickled = pickle.dumps(block)
-        self.broadcast(config.BLOCK_REGISTER_URL, data_pickled)
+        self.broadcast(config.BLOCK_REGISTER_URL, {'block': block})

@@ -50,5 +50,5 @@ class BootstapAdapters(Adapters):
         super().__init__()
         self.usecase = BootstrapNodeUsecase()
 
-    def register_node(self, node_info: RingNode):
+    def register_node(self, node_info: RingNode) -> RingNode:
         return self.usecase.register_node(node_info)

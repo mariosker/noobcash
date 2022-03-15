@@ -31,6 +31,7 @@ class BootstrapNode(Node):
         Returns:
             _type_: _description_
         """
+        print(node_info)
         if len(self.ring) > config.MAX_USER_COUNT:
             raise ValueError('Cannot add more nodes to the ring')
         node_info.id = len(self.ring)
@@ -48,4 +49,4 @@ class BootstrapNode(Node):
                                           self.wallet.private_key)
         [_, receiver_output] = genesis_transaction.transaction_outputs
         self.wallet.unspent_transactions.append(receiver_output)
-        return Block(0, 1, [genesis_transaction])
+        return Block(0, '1', [genesis_transaction])

@@ -9,5 +9,5 @@ class BootstrapNodeUsecase(NodeUsecase):
         super().__init__()
         self.node = BootstrapNode()
 
-    def register_node(self, node_info: RingNode):
+    def register_node(self, node_info: RingNode) -> RingNode:
         return self.node.register_node(node_info)

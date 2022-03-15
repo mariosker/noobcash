@@ -1,3 +1,4 @@
+import json
 import time
 
 from config import config
@@ -55,3 +56,7 @@ class Block:
 
     def get_transactions(self):
         return self.transactions
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+            sort_keys=True, indent=4)

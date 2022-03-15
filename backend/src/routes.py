@@ -1,9 +1,10 @@
-import pickle
+import json
 
 from config import config
-from flask import Flask, request
+from flask import Flask, jsonify, request
 
 from src.adapters import Adapters, BootstapAdapters, P2PAdapters
+from src.repository.ring import RingNode
 
 
 class RouteHandler:
@@ -43,19 +44,18 @@ class RouteHandler:
                      methods=['POST'])
 
     def create_transaction(self):
-        receiver_address = request.args.get("receiver_address")
-        amount = request.args.get("amount")
-        if self.adapter.create_transaction(receiver_address, amount):
-            return ('could not create transaction', 500)
-        return ('transaction created successfully', 200)
+        data = request.get_json()
+        if self.adapter.create_transaction(data['receiver_address'], data['amount']):
+            return (jsonify({'status': 'could not create transaction'}), 500)
+        return (jsonify({'status': 'transaction created'}), 200)
 
     def register_transaction_to_block(self):
-        transaction = pickle.loads(request.get_data())
-        return self.adapter.register_transaction_to_block(transaction)
+        data = request.get_json()
+        return self.adapter.register_transaction_to_block(data['transaction'])
 
     def register_incoming_block(self):
-        block = pickle.loads(request.get_data())
-        return self.adapter.register_incoming_block(block)
+        data = request.get_json()
+        return self.adapter.register_incoming_block(data['block'])
 
     def get_transactions_from_last_block(self):
         return self.adapter.get_transactions_from_last_block()
@@ -80,9 +80,10 @@ class BootstrapRouteHandler(RouteHandler):
         add_endpoint(config.NODE_REGISTER_URL, self.register_node, methods=['POST'])
 
     def register_node(self):
-        node_info = pickle.loads(request.get_data())
+        data = json.loads(request.get_json()['node_info'])
+        node_info = RingNode(data['id'], data['host'], data['port'], data['public_key'], data['balance'])
         node_info = self.adapter.register_node(node_info)
-        return pickle.dumps(node_info)
+        return (jsonify({'node_info': node_info}), 200)
 
 class P2PRouteHandler(RouteHandler):
 
@@ -95,7 +96,7 @@ class P2PRouteHandler(RouteHandler):
         add_endpoint(config.NODE_SET_INFO_URL, self.set_info, methods=['POST'])
 
     def set_info(self):
-        data = pickle.loads(request.get_data())
+        data = request.get_json()
         ring = data['ring']
         blockchain = data['blockchain']
         self.adapter.set_ring(ring)

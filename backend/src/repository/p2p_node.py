@@ -1,4 +1,4 @@
-import pickle
+import json
 
 import requests
 from config import config
@@ -23,15 +23,15 @@ class P2PNode(Node):
                                  port=config.PORT,
                                  public_key=self.wallet.public_key)
 
-        ring_node_serial = pickle.dumps(tmp_node_info)
+        ring_node_serial = {'node_info': tmp_node_info.to_json()}
 
         resp = requests.post(config.BOOTSTRAP_HOST + ':' +
-                             config.BOOTSTRAP_PORT + config.NODE_REGISTER_URL,
-                             data=ring_node_serial)
+                             str(config.BOOTSTRAP_PORT) + config.NODE_REGISTER_URL,
+                             json=ring_node_serial)
 
         if resp.status_code != 200:
             raise ConnectionRefusedError("Cannot get uid from bootstrap")
-        resp_content = pickle.loads(resp.content)
+        resp_content = json.dumps(resp.json())
         return resp_content
 
     def set_ring(self, ring: Ring) -> None:

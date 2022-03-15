@@ -1,3 +1,5 @@
+import json
+
 from src.repository.block import Block
 
 
@@ -5,7 +7,7 @@ class Blockchain:
     """ Contains the blocks of the blockchain
     """
 
-    def __init__(self, chain: list[Block] = None) -> None:
+    def __init__(self, chain: list[Block] = []) -> None:
         self.chain = chain
 
     def add_block(self, block: Block):
@@ -58,3 +60,7 @@ class Blockchain:
 
     def get_chain(self):
         return self.chain
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+            sort_keys=True, indent=4)

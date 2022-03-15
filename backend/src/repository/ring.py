@@ -1,3 +1,4 @@
+import json
 from dataclasses import dataclass
 
 from src.repository.transaction import Transaction
@@ -18,6 +19,9 @@ class RingNode:
             return self.id == other.id
         return False
 
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+            sort_keys=True, indent=4)
 
 class Ring:
 
@@ -46,3 +50,7 @@ class Ring:
                 node.balance -= transaction.amount
             if node.public_key == transaction.receiver_address:
                 node.balance += transaction.amount
+                
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+            sort_keys=True, indent=4)

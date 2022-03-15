@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import time
 import uuid
 from dataclasses import dataclass
@@ -52,7 +53,7 @@ class Transaction:
             self.amount) + str(self.timestamp)
         return crypto.hash_to_str(to_hash)
 
-    def sign_transaction(self, private_key: bytes):
+    def sign_transaction(self, private_key: str):
         """signs the transaction
 
         Args:
@@ -61,9 +62,9 @@ class Transaction:
         Returns:
             Bytes: The signature
         """
-        return crypto.get_signature(self.transaction_id, private_key)
+        return crypto.get_signature(self.transaction_id, bytes(private_key, 'utf-8'))
 
-    def verify_signature(self, public_key):
+    def verify_signature(self, public_key: str):
         """Given a public key verifies that a signature is correct
 
         Args:
@@ -73,7 +74,7 @@ class Transaction:
             bool: True if signature is valid
         """
         return crypto.is_signature_valid(self.signature, self.transaction_id,
-                                         public_key)
+                                         bytes(public_key, 'utf-8'))
 
     def get_transaction_outputs(self):
         """Generates the outputs of the transaction
@@ -99,3 +100,7 @@ class Transaction:
 
     def __lt__(self, other: Transaction):
         return self.timestamp < other.timestamp
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__,
+            sort_keys=True, indent=4)

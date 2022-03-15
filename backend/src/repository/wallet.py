@@ -8,6 +8,8 @@ class Wallet:
 
     def __init__(self) -> None:
         self.private_key, self.public_key = crypto.get_keypair()
+        self.private_key = self.private_key.decode('utf-8')
+        self.public_key = self.public_key.decode('utf-8')
         self.unspent_transactions = deque()
 
     def get_balance(self) -> int:
