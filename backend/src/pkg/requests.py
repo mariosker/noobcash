@@ -14,6 +14,6 @@ def poll_endpoint(URL: str, requests_function=requests.post, data=None, time_win
         try:
             resp = requests_function(URL, data=data)
             return resp
-        except Exception as err:
+        except requests.exceptions.RequestException as err:
             config.logging.debug(err)
         sleep(time_window)

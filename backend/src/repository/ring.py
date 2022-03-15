@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 from collections import deque
+from dataclasses import dataclass
+from typing import List
 
 from src.repository.transaction import Transaction
 
@@ -22,19 +23,31 @@ class RingNode:
 
 
 class Ring:
-
-    def __init__(self, ring: "list[RingNode]" = []) -> None:
+    def __init__(self, ring: List[RingNode] = []) -> None:
         self.ring = ring
 
     def append(self, node: RingNode):
+        """Add a new node to the ring
+
+        Args:
+            node (RingNode): A node that contains info about a client in the blockchain
+        """
         self.ring.append(node)
 
     def __len__(self):
         return len(self.ring)
 
-    def get_node(self, key):
+    def get_node(self, sender_address: str) -> RingNode:
+        """Returns the node with the specific address
+
+        Args:
+            sender_addrese (str): The address of the node to return
+
+        Returns:
+            RingNode: A node that contains info about a client in the blockchain
+        """
         try:
-            return next(n for n in self.ring if key(n))
+            return next(n for n in self.ring if sender_address == n.public_key)
         except StopIteration:
             return None
 

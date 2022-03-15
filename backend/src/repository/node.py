@@ -1,6 +1,7 @@
 import pickle
 from collections import deque
 from threading import Thread
+from time import sleep
 
 import requests
 from config import config
@@ -18,7 +19,7 @@ class _Node:
 
     def __init__(self) -> None:
         self.wallet = Wallet()
-        self.ring = Ring()
+        self.ring = Ring([])
         self.blocks_to_mine = deque()
         self.blockchain = Blockchain()
         self.node_info = RingNode(id=-1,
@@ -90,8 +91,7 @@ class _Node:
         if not transaction.verify_signature():
             return False
 
-        current_node = self.ring.get_node(
-            lambda x: (x.public_key == transaction.sender_address))
+        current_node = self.ring.get_node(transaction.sender_address.decode('utf-8'))
 
         if not current_node:
             return False
@@ -163,7 +163,7 @@ class _Node:
                     self.update_transactions(transaction)
         except Exception as err:
             config.logging.debug(err)
-            self.resolve_conflict()
+            self.resolve_confict()
         self.can_mine = True
 
     def _broadcast_block(self, block: Block):

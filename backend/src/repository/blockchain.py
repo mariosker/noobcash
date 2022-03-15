@@ -1,6 +1,6 @@
 from __future__ import annotations
-from src.repository.block import Block
 
+from typing import List
 
 from src.repository.block import Block
 
@@ -9,7 +9,7 @@ class Blockchain:
     """ Contains the blocks of the blockchain
     """
 
-    def __init__(self, chain: "list[Block]" = None) -> None:
+    def __init__(self, chain: List[Block] = None) -> None:
         self.chain = chain
 
     def add_block(self, block: Block):
@@ -30,7 +30,7 @@ class Blockchain:
         """Checks if the block is valid
 
         Args:
-            block (Block): A block instance to be validated
+            block (Block): A block instance to check if is valid
 
         Returns:
             bool: True if valid else False
@@ -56,11 +56,21 @@ class Blockchain:
         return len(self.chain)
 
     def get_last_block(self) -> Block:
+        """Returns the last block of the blockchain
+
+        Returns:
+            block (Block): A block instance
+        """
         if not self.chain:
             return None
         return self.chain[-1]
 
-    def get_chain(self):
+    def get_chain(self) -> List[Block]:
+        """Returns a chain of Blocks
+
+        Returns:
+            List[Block]: A list of all the blocks in the blockchain
+        """
         return self.chain
 
     def __lt__(self, other: Blockchain):

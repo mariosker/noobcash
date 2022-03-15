@@ -1,6 +1,6 @@
 import time
+from typing import List
 
-from config import config
 from src.pkg import crypto
 from src.repository.transaction import Transaction
 
@@ -12,12 +12,13 @@ class Block:
     def __init__(self,
                  index: int,
                  previous_hash: str = "",
-                 transactions: "list[Transaction]" = None) -> None:
+                 transactions: List[Transaction] = None) -> None:
         """Generate a new block.
 
         Args:
             index (int): the index of the block in the blockchain
             previous_hash (str): hash of the previous block
+            transactions (List[Trasaction]): list of all unspent transactions on the block
         """
         self.index = index
         self.timestamp = time.time()
@@ -54,5 +55,5 @@ class Block:
     #     raise ValueError(
     #         f'Block reached capacity of {config.BLOCK_CAPACITY}.')
 
-    def get_transactions(self):
+    def get_transactions(self) -> List[Transaction]:
         return self.transactions
