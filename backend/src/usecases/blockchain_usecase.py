@@ -1,5 +1,6 @@
-from src.repository.node import _Node
 import pickle
+
+from src.repository.node import _Node
 
 
 class BlockChainUsecase:

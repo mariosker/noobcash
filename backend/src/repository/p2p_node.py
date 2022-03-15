@@ -27,7 +27,7 @@ class P2PNode(_Node):
 
         ring_node_serial = pickle.dumps(tmp_node_info)
 
-        resp = requests.post(config.BOOTSTRAP_HOST + ':' +
+        resp = requests.post('http://' + config.BOOTSTRAP_HOST + ':' +
                              config.BOOTSTRAP_PORT + config.NODE_REGISTER_URL,
                              data=ring_node_serial)
 

@@ -2,6 +2,9 @@ from __future__ import annotations
 from src.repository.block import Block
 
 
+from src.repository.block import Block
+
+
 class Blockchain:
     """ Contains the blocks of the blockchain
     """

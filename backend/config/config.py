@@ -1,6 +1,5 @@
 import logging
 import os
-import socket
 
 logger = logging
 if os.getenv('env') != 'PROD':
@@ -9,16 +8,16 @@ else:
     logger.basicConfig(level=logging.WARN)
 
 IS_LOCAL = True
-HOST = 'http://localhost' if IS_LOCAL else socket.gethostname()
-IS_BOOTSRAP = os.getenv('IS_BOOTSTAP', None)
-BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST', 'http://localhost')
-BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT', '5000')
+HOST = os.getenv('HOST')
+PORT = os.getenv('PORT')
+IS_BOOTSRAP = bool(os.getenv('IS_BOOTSTRAP'))
+BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST')
+BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT')
 
-MAX_USER_COUNT = os.getenv('MAX_USER_COUNT', None)
+MAX_USER_COUNT = int(os.getenv('MAX_USER_COUNT'))
 BLOCK_CAPACITY = int(os.getenv('BLOCK_CAPACITY', '10'))
 MINING_DIFFICULTY = int(os.getenv('MINING_DIFFICULTY', '10'))
 
-PORT = os.getenv('PORT', None)
 
 if IS_BOOTSRAP:
     PORT = BOOTSTRAP_PORT

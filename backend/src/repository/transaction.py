@@ -88,8 +88,7 @@ class Transaction:
 
         sender_output = TransactionOutput(transaction_id=self.transaction_id,
                                           receiver=self.sender_address,
-                                          value=total_input_amount -
-                                          self.amount)
+                                          value=total_input_amount - self.amount)
 
         receiver_output = TransactionOutput(transaction_id=self.transaction_id,
                                             receiver=self.receiver_address,

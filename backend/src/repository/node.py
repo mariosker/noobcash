@@ -1,10 +1,10 @@
 import pickle
 from collections import deque
 from threading import Thread
-from time import sleep
 
 import requests
 from config import config
+from src.pkg.requests import poll_endpoint
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
 from src.repository.ring import Ring, RingNode
@@ -35,10 +35,10 @@ class _Node:
     def broadcast(self, URL: str, obj, requests_function=requests.post):
         responses = []
         for node in self.ring:
-            if node == self.node_info:
+            if node.host == self.node_info.host:
                 continue
-            responses.append(
-                requests_function(node.host + ':' + node.port + URL, data=obj))
+            resp = poll_endpoint('http://' + node.host + ':' + node.port + URL, obj=obj, requests_function=requests_function)
+            responses.append(resp)
 
         return responses
 
