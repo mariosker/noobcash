@@ -1,6 +1,5 @@
 import requests
 from config import config
-from entities.transaction import TransactionRequest
 
 
 class RestAPI:
@@ -9,21 +8,25 @@ class RestAPI:
         self.host = 'http://' + host
         self.port = port
 
-    def create_transaction(self, transaction: TransactionRequest):
-        data = {
-            'receiver_address': transaction.receiver_address,
-            'amount': transaction.amount,
-        }
+    def create_transaction(self, receiver, amount):
+        data = {'receiver_address': receiver, 'amount': amount}
         resp = requests.post(self.host + ':' + self.port +
                              config.TRANSACTION_URL,
                              data=data)
         if resp.status_code != 200:
-            raise ValueError('cannot create transaction')
+            raise ValueError('Cannot create transaction')
+
+        print(f"Transaction successfully created")
 
     def view_last_transactions(self):
-        requests.get(self.host + ':' + self.port + config.TRANSACTION_URL)
+        resp = requests.get(self.host + ':' + self.port +
+                            config.TRANSACTION_URL)
+        if resp.status_code != 200:
+            raise ValueError('Cannot view last transactions')
+        return resp.content
 
     def get_balance(self):
         resp = requests.get(self.host + ':' + self.port + config.BALANCE_URL)
         if resp.status_code != 200:
-            raise ValueError('node inaccessible: cannot get balance')
+            raise ValueError('Cannot get balance')
+        return int(resp.content)

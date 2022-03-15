@@ -17,7 +17,7 @@ def main():
         adapter_services = P2PAdapters()
         P2PRouteHandler(app, adapter_services)
 
-    app.run()
+    app.run(port=int(config.PORT))
 
 
 if __name__ == "__main__":
