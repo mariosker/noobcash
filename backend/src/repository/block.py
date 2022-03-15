@@ -12,7 +12,7 @@ class Block:
     def __init__(self,
                  index: int,
                  previous_hash: str = "",
-                 transactions: list[Transaction] = None) -> None:
+                 transactions: "list[Transaction]" = None) -> None:
         """Generate a new block.
 
         Args:

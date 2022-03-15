@@ -2,7 +2,7 @@ from src.repository.node import _Node
 import pickle
 
 
-class ChainUsecase:
+class BlockChainUsecase:
 
     def __init__(self, node: _Node) -> None:
         self.node = node

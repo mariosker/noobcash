@@ -5,7 +5,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 
-def get_keypair() -> tuple[bytes]:
+def get_keypair() -> "tuple[bytes]":
     """Returns a private/ public keypair
 
     Args:

@@ -7,6 +7,7 @@ from src.repository.ring import Ring, RingNode
 
 
 class P2PNode(_Node):
+
     def __init__(self) -> None:
         super().__init__()
         self.node_info = self._get_node_info_from_bootstrap()
@@ -21,6 +22,7 @@ class P2PNode(_Node):
         tmp_node_info = RingNode(id=-1,
                                  host=config.HOST,
                                  port=config.PORT,
+                                 utxos=self.wallet.unspent_transactions,
                                  public_key=self.wallet.public_key)
 
         ring_node_serial = pickle.dumps(tmp_node_info)

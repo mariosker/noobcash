@@ -23,7 +23,7 @@ class RingNode:
 
 class Ring:
 
-    def __init__(self, ring: list[RingNode] = []) -> None:
+    def __init__(self, ring: "list[RingNode]" = []) -> None:
         self.ring = ring
 
     def append(self, node: RingNode):
