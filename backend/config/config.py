@@ -8,13 +8,13 @@ else:
     logger.basicConfig(level=logging.WARN)
 
 IS_LOCAL = True
-HOST = os.getenv('HOST')
+HOST = os.getenv('HOST', 'localhost')
 PORT = os.getenv('PORT')
 IS_BOOTSRAP = bool(os.getenv('IS_BOOTSTRAP'))
-BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST')
-BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT')
+BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST', 'localhost')
+BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT', '5000')
 
-MAX_USER_COUNT = int(os.getenv('MAX_USER_COUNT'))
+MAX_USER_COUNT = int(os.getenv('MAX_USER_COUNT', '5'))
 BLOCK_CAPACITY = int(os.getenv('BLOCK_CAPACITY', '10'))
 MINING_DIFFICULTY = int(os.getenv('MINING_DIFFICULTY', '10'))
 
