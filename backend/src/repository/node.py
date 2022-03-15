@@ -37,7 +37,7 @@ class _Node:
         for node in self.ring:
             if node.host == self.node_info.host:
                 continue
-            resp = poll_endpoint('http://' + node.host + ':' + node.port + URL, obj=obj, requests_function=requests_function)
+            resp = poll_endpoint('http://' + node.host + ':' + node.port + URL, data=obj, requests_function=requests_function)
             responses.append(resp)
 
         return responses

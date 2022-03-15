@@ -2,6 +2,7 @@ import pickle
 
 import requests
 from config import config
+from src.pkg.requests import poll_endpoint
 from src.repository.node import _Node
 from src.repository.ring import Ring, RingNode
 
@@ -26,10 +27,9 @@ class P2PNode(_Node):
                                  public_key=self.wallet.public_key)
 
         ring_node_serial = pickle.dumps(tmp_node_info)
-
-        resp = requests.post('http://' + config.BOOTSTRAP_HOST + ':' +
+        resp = poll_endpoint('http://' + config.BOOTSTRAP_HOST + ':' +
                              config.BOOTSTRAP_PORT + config.NODE_REGISTER_URL,
-                             data=ring_node_serial)
+                             data=ring_node_serial, requests_function=requests.post)
 
         if resp.status_code != 200:
             raise ConnectionRefusedError("Cannot get uid from bootstrap")
