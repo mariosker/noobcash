@@ -23,6 +23,7 @@ class RingNode:
 
 
 class Ring:
+
     def __init__(self, ring: List[RingNode] = []) -> None:
         self.ring = ring
 
@@ -41,7 +42,7 @@ class Ring:
         """Returns the node with the specific address
 
         Args:
-            sender_addrese (str): The address of the node to return
+            sender_address (str): The address of the node to return
 
         Returns:
             RingNode: A node that contains info about a client in the blockchain
@@ -56,10 +57,20 @@ class Ring:
             yield each
 
     def update_balance(self, transaction: Transaction):
+        # for node in self.ring:
+        #     if node.public_key == transaction.sender_address:
+        #         node.balance -= transaction.amount
+        #         node.utxos = node.wallet.unspent_transactions
+        #     if node.public_key == transaction.receiver_address:
+        #         node.balance += transaction.amount
+        #         node.utxos = node.wallet.unspent_transactions
+
         for node in self.ring:
             if node.public_key == transaction.sender_address:
                 node.balance -= transaction.amount
-                node.utxos = node.wallet.unspent_transactions
+                node.utxos = [
+                    x for x in node.utxos if x not in transaction.inputs
+                ]
             if node.public_key == transaction.receiver_address:
                 node.balance += transaction.amount
-                node.utxos = node.wallet.unspent_transactions
+                node.utxos.extend(transaction.transaction_outputs[1])

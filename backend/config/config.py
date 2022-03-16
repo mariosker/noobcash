@@ -7,6 +7,7 @@ if os.getenv('env') != 'PROD':
 else:
     logger.basicConfig(level=logging.WARN)
 
+logger.basicConfig(level=logging.DEBUG)
 IS_LOCAL = True
 HOST = os.getenv('HOST', 'localhost')
 PORT = os.getenv('PORT')

@@ -70,5 +70,5 @@ class BootstrapNode(_Node):
 
                 self.create_transaction(node.public_key, config.NBC_PER_NODE)
         except ValueError as err:
-            config.logger.error(err)
+            config.logger.debug(err)
             raise ValueError('Could not create initial transactions')

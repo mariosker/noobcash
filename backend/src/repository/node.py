@@ -65,11 +65,12 @@ class _Node:
         transaction = Transaction(self.wallet.public_key,
                                   bytes(receiver_address), amount,
                                   transaction_inputs, self.wallet.private_key)
-
+        config.logger.debug("before validate")
         if not self.validate_transaction(transaction):
             self.wallet.unspent_transactions.extend(transactions_to_be_spent)
             raise ValueError('Transaction is invalid')
 
+        config.logger.debug("before broadcast")
         transaction_pickled = pickle.dumps(transaction)
         self.broadcast(config.TRANSACTION_REGISTER_URL, transaction_pickled)
         self.pending_transactions.append(transaction)
@@ -83,6 +84,7 @@ class _Node:
         Raises:
             ValueError: _description_
         """
+        print(vars(transaction))
         if not self.validate_transaction(transaction):
             raise ValueError('Transaction not valid')
 
@@ -90,17 +92,27 @@ class _Node:
         self.pending_transactions.append(transaction)
 
     def validate_transaction(self, transaction: Transaction):
-        if not transaction.verify_signature():
+        if not transaction.verify_signature(transaction.sender_address):
+            config.logger.debug('cannot verify')
             return False
 
-        current_node = self.ring.get_node(
-            transaction.sender_address.decode('utf-8'))
+        for node in self.ring:
+            config.logger.debug(node.public_key, transaction.sender_address)
+            if node.public_key == transaction.sender_address:
+                if node.balance >= transaction.amount:
+                    return True
 
-        if not current_node:
-            return False
+        # current_node = self.ring.get_node(
+        #     transaction.sender_address.decode('utf-8'))
 
-        if current_node.balance >= transaction.amount:
-            return True
+        # if not current_node:
+        #     config.logger.debug('current node')
+        #     return False
+
+        # if current_node.balance >= transaction.amount:
+        #     return True
+
+        # config.logger.debug('else')
 
         return False
 
