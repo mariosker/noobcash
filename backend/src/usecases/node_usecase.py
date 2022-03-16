@@ -1,8 +1,9 @@
+import pickle
+
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
 from src.repository.node import _Node
 from src.repository.transaction import Transaction
-import pickle
 
 
 class NodeUsecase():

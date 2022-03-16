@@ -3,14 +3,19 @@ import pickle
 from config import config
 from flask import Flask, request
 
-from src.adapters import Adapters, BootstapAdapters, P2PAdapters
+from src.usecases.blockchain_usecase import BlockChainUsecase
+from src.usecases.bootstrap_node_usecase import BootstrapNodeUsecase
+from src.usecases.node_usecase import NodeUsecase
+from src.usecases.p2p_node_usecase import P2PNodeUsecase
+from src.usecases.transaction_usecase import TransactionUsecase
+from src.usecases.wallet_usecase import WalletUsecase
 
 
 class RouteHandler:
 
-    def __init__(self, app: Flask, adapter: Adapters) -> None:
+    def __init__(self, app: Flask) -> None:
         self.app = app
-        self.adapter = adapter
+        self.node_usecase = NodeUsecase()
         self._init_endpoints()
 
     def _add_endpoint(self, rule='/', view_func=None, methods=None):
@@ -49,38 +54,41 @@ class RouteHandler:
     def create_transaction(self):
         receiver_address = request.args.get("receiver_address")
         amount = request.args.get("amount")
-        if self.adapter.create_transaction(receiver_address, amount):
+        if TransactionUsecase(self.node_usecase.node).create(
+            receiver_address, amount):
             return ('could not create transaction', 500)
         return ('transaction created successfully', 200)
 
     def register_transaction_to_block(self):
         transaction = pickle.loads(request.get_data())
-        return self.adapter.register_transaction_to_block(transaction)
+        return TransactionUsecase(self.node_usecase.node).register(transaction)
 
     def register_incoming_block(self):
         block = pickle.loads(request.get_data())
-        return self.adapter.register_incoming_block(block)
+        return self.node_usecase.register_incoming_block(block)
 
     def get_transactions_from_last_block(self):
-        return self.adapter.get_transactions_from_last_block()
+        return TransactionUsecase(self.node_usecase.node).get_transactions_from_last_block()
 
     def get_balance(self):
-        return str(self.adapter.get_balance())
+        return str(WalletUsecase(self.node_usecase.node).get_balance())
 
     def get_chain(self):
-        self.adapter.get_chain()
+        return BlockChainUsecase(self.node_usecase.node).get_chain()
 
     def set_chain(self):
-        self.adapter.set_chain()
+        chain = pickle.loads(request.get_data())
+        return self.node_usecase.set_chain(chain)
 
     def get_ring_and_transactions(self):
-        self.adapter.get_ring_and_transactions()
+        return self.node_usecase.get_ring_and_transactions()
 
 
 class BootstrapRouteHandler(RouteHandler):
 
-    def __init__(self, app, adapter: BootstapAdapters) -> None:
-        super().__init__(app, adapter)
+    def __init__(self, app) -> None:
+        super().__init__(app)
+        self.usecase = BootstrapNodeUsecase()
         self._init_specific_endpoints()
 
     def _init_specific_endpoints(self):
@@ -91,14 +99,19 @@ class BootstrapRouteHandler(RouteHandler):
 
     def register_node(self):
         node_info = pickle.loads(request.get_data())
-        node_info = self.adapter.register_node(node_info)
+        ip = request.environ['REMOTE_ADDR']
+        port = str(request.environ['REMOTE_PORT'])
+        node_info = self.usecase.register_node(node_info)
+        node_info.host = ip
+        node_info.port = port
         return pickle.dumps(node_info)
 
 
 class P2PRouteHandler(RouteHandler):
 
-    def __init__(self, app, adapter: P2PAdapters) -> None:
-        super().__init__(app, adapter)
+    def __init__(self, app) -> None:
+        super().__init__(app)
+        self.usecase = P2PNodeUsecase()
         self._init_specific_endpoints()
 
     def _init_specific_endpoints(self):
@@ -109,6 +122,6 @@ class P2PRouteHandler(RouteHandler):
         data = pickle.loads(request.get_data())
         ring = data['ring']
         blockchain = data['blockchain']
-        self.adapter.set_ring(ring)
-        self.adapter.set_chain(blockchain)
+        self.usecase.set_ring(ring)
+        self.node_usecase.set_chain(blockchain)
         return ('', 204)
