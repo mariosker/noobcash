@@ -91,7 +91,12 @@ class BootstrapRouteHandler(RouteHandler):
 
     def register_node(self):
         node_info = pickle.loads(request.get_data())
+        ip = request.environ['REMOTE_ADDR']
+        port = str(request.environ['REMOTE_PORT'])
         node_info = self.adapter.register_node(node_info)
+
+        node_info.host = ip
+        node_info.port = port
         return pickle.dumps(node_info)
 
 

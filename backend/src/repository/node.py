@@ -38,9 +38,10 @@ class _Node:
         for node in self.ring:
             if node.host == self.node_info.host:
                 continue
-            resp = poll_endpoint('http://' + node.host + ':' + node.port + URL,
+            resp = poll_endpoint(f'http://{node.host}:{node.port}{URL}',
                                  data=obj,
                                  requests_function=requests_function)
+
             responses.append(resp)
 
         return responses
@@ -195,7 +196,7 @@ class _Node:
         response = None
         for node in self.ring:
             if node.id == id:
-                response = requests.get(node.host + ':' + node.port +
+                response = requests.get(node.host + ':' + str(node.port) +
                                         config.NODE_RING_AND_TRANSACTION)
                 response = pickle.loads(response.data)
                 break

@@ -1,71 +1,37 @@
 version: "3.3"
 
-services: 
+services:
   bootstrap-node:
     image: app
     build:
       context: ./../
       dockerfile: infra/Dockerfile
     environment:
-      IS_BOOTSTRAP: "true"
-      HOST: 192.168.1.10
-      PORT: 1000
-      BOOTSTRAP_HOST: 192.168.1.10
-      BOOTSTRAP_PORT: 1000
-      MAX_USER_COUNT: 3
-      BLOCK_CAPACITY: 2
-      MINING_DIFFICULTY: 4
+      IS_BOOTSTRAP: 'true'
+      FLASK_ENV: development
+      MAX_USER_COUNT: ${MAX_USER_COUNT}
+      BLOCK_CAPACITY: ${BLOCK_CAPACITY}
+      MINING_DIFFICULTY: ${MINING_DIFFICULTY}
+      ENV: ${ENV}
     ports:
-      - "1000:1000/tcp"
-    networks:
-      noobchain:
-        ipv4_address: 192.168.1.10
-  node-1:
+      - "5000:5000/tcp"
+
+  p2p-node:
     image: app
     build:
       context: ./../
       dockerfile: infra/Dockerfile
     environment:
-      IS_BOOTSTRAP: null
-      HOST: 192.168.1.20
-      PORT: 2000
-      BOOTSTRAP_HOST: 192.168.1.10
-      BOOTSTRAP_PORT: 1000
-      MAX_USER_COUNT: 3
-      BLOCK_CAPACITY: 2
-      MINING_DIFFICULTY: 4
+      BOOTSTRAP_HOST: ${BOOTSTRAP_HOST}
+      BOOTSTRAP_PORT: ${BOOTSTRAP_PORT}
+      FLASK_ENV: development
+      MAX_USER_COUNT: ${MAX_USER_COUNT}
+      BLOCK_CAPACITY: ${BLOCK_CAPACITY}
+      MINING_DIFFICULTY: ${MINING_DIFFICULTY}
+      ENV: ${ENV}
+    deploy:
+      replicas: 2
     ports:
-      - "2000:2000/tcp"
+      - "6000-6002:5000/tcp"
     depends_on:
       - bootstrap-node
-    networks:
-      noobchain:
-        ipv4_address: 192.168.1.20
-  node-2:
-    image: app
-    build:
-      context: ./../
-      dockerfile: infra/Dockerfile
-    environment:
-      IS_BOOTSTRAP: null
-      HOST: 192.168.1.30
-      PORT: 3000
-      BOOTSTRAP_HOST: 192.168.1.10
-      BOOTSTRAP_PORT: 1000
-      MAX_USER_COUNT: 3
-      BLOCK_CAPACITY: 2
-      MINING_DIFFICULTY: 4
-    ports:
-      - "3000:3000/tcp"
-    depends_on:
-      - bootstrap-node
-    networks:
-      noobchain:
-        ipv4_address: 192.168.1.30
-networks:
-  noobchain:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.1.0/24
