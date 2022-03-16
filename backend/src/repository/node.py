@@ -38,7 +38,9 @@ class _Node:
         for node in self.ring:
             if node.host == self.node_info.host:
                 continue
-            resp = poll_endpoint('http://' + node.host + ':' + node.port + URL, data=obj, requests_function=requests_function)
+            resp = poll_endpoint('http://' + node.host + ':' + node.port + URL,
+                                 data=obj,
+                                 requests_function=requests_function)
             responses.append(resp)
 
         return responses
@@ -69,7 +71,7 @@ class _Node:
             raise ValueError('Transaction is invalid')
 
         transaction_pickled = pickle.dumps(transaction)
-        self.broadcast(config.TRANSACTION_URL, transaction_pickled)
+        self.broadcast(config.TRANSACTION_REGISTER_URL, transaction_pickled)
         self.pending_transactions.append(transaction)
 
     def register_transaction(self, transaction: Transaction):
@@ -91,7 +93,8 @@ class _Node:
         if not transaction.verify_signature():
             return False
 
-        current_node = self.ring.get_node(transaction.sender_address.decode('utf-8'))
+        current_node = self.ring.get_node(
+            transaction.sender_address.decode('utf-8'))
 
         if not current_node:
             return False
@@ -144,7 +147,7 @@ class _Node:
         try:
             self.wallet.update_wallet(transaction)
         except Exception as err:
-            config.logging.debug(err)
+            config.logger.debug(err)
         self.ring.update_balance(transaction)
 
     def _register_mined_block(self, block: Block):
@@ -162,7 +165,7 @@ class _Node:
                 else:
                     self.update_transactions(transaction)
         except Exception as err:
-            config.logging.debug(err)
+            config.logger.debug(err)
             self.resolve_confict()
         self.can_mine = True
 
