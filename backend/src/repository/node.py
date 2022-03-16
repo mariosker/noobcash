@@ -38,14 +38,14 @@ class _Node:
         for node in self.ring:
             if node.host == self.node_info.host:
                 continue
-            resp = poll_endpoint('http://' + node.host + ':' + node.port + URL,
+            resp = poll_endpoint(f'http://{node.host}:{node.port}{URL}',
                                  data=obj,
                                  requests_function=requests_function)
             responses.append(resp)
 
         return responses
 
-    def create_transaction(self, receiver_address: str, amount: int):
+    def create_transaction(self, receiver_address: bytes, amount: int):
         transaction_inputs = []
         transactions_to_be_spent = deque()
         input_amount = 0
@@ -62,15 +62,18 @@ class _Node:
             transaction_inputs.append(
                 TransactionInput(current_utxo.id, current_utxo.value))
 
-        transaction = Transaction(self.wallet.public_key,
-                                  bytes(receiver_address), amount,
-                                  transaction_inputs, self.wallet.private_key)
+        transaction = Transaction(self.wallet.public_key, receiver_address,
+                                  amount, transaction_inputs,
+                                  self.wallet.private_key)
         config.logger.debug("before validate")
         if not self.validate_transaction(transaction):
             self.wallet.unspent_transactions.extend(transactions_to_be_spent)
             raise ValueError('Transaction is invalid')
 
         config.logger.debug("before broadcast")
+        # TODO: EVERYDAY MALAKIA
+        self.wallet.update_wallet(transaction)
+        self.ring.update_balance(transaction)
         transaction_pickled = pickle.dumps(transaction)
         self.broadcast(config.TRANSACTION_REGISTER_URL, transaction_pickled)
         self.pending_transactions.append(transaction)
@@ -97,8 +100,8 @@ class _Node:
             return False
 
         for node in self.ring:
-            config.logger.debug(node.public_key, transaction.sender_address)
             if node.public_key == transaction.sender_address:
+                config.logger.debug('Found node')
                 if node.balance >= transaction.amount:
                     return True
 
@@ -125,6 +128,7 @@ class _Node:
             block.current_hash = block.calculate_hash()
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
+        config.logger.debug("I got the blockchain YIPkAY")
         self.blockchain = blockchain
 
     def handle_pending_transactions(self):

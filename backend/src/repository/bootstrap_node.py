@@ -20,8 +20,8 @@ class BootstrapNode(_Node):
                                   utxos=self.wallet.unspent_transactions,
                                   balance=self.wallet.get_balance())
 
-        self.genesis_block = self._create_genesis_block()
         self.ring.append(self.node_info)
+        self.genesis_block = self._create_genesis_block()
         self.blockchain = Blockchain([self.genesis_block])
 
     def _create_genesis_block(self) -> Block:
@@ -32,6 +32,7 @@ class BootstrapNode(_Node):
         [_, receiver_output] = genesis_transaction.transaction_outputs
         self.wallet.unspent_transactions.append(receiver_output)
         self.ring.update_balance(genesis_transaction)
+        config.logger.debug(self.ring)
         return Block(0, 1, [genesis_transaction])
 
     def register_node(self, node_info: RingNode):

@@ -7,7 +7,7 @@ class TransactionUsecase:
     def __init__(self, node: _Node) -> None:
         self.node = node
 
-    def create(self, receiver_address: str, amount: int):
+    def create(self, receiver_address: bytes, amount: int):
         self.node.create_transaction(receiver_address, amount)
 
     def get_transactions_from_last_block(self):

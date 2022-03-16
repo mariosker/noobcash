@@ -12,9 +12,9 @@ class RingNode:
     id: str
     host: str
     port: str
-    public_key: str
+    public_key: bytes
     utxos: deque()
-    balance: str = 0
+    balance: int = 0
 
     def __eq__(self, other):
         if isinstance(other, RingNode):
@@ -38,7 +38,7 @@ class Ring:
     def __len__(self):
         return len(self.ring)
 
-    def get_node(self, sender_address: str) -> RingNode:
+    def get_node(self, sender_address: bytes) -> RingNode:
         """Returns the node with the specific address
 
         Args:
@@ -57,20 +57,16 @@ class Ring:
             yield each
 
     def update_balance(self, transaction: Transaction):
-        # for node in self.ring:
-        #     if node.public_key == transaction.sender_address:
-        #         node.balance -= transaction.amount
-        #         node.utxos = node.wallet.unspent_transactions
-        #     if node.public_key == transaction.receiver_address:
-        #         node.balance += transaction.amount
-        #         node.utxos = node.wallet.unspent_transactions
-
         for node in self.ring:
             if node.public_key == transaction.sender_address:
                 node.balance -= transaction.amount
                 node.utxos = [
-                    x for x in node.utxos if x not in transaction.inputs
+                    x for x in node.utxos
+                    if x not in transaction.transaction_inputs
                 ]
+
+                node.utxos.append(transaction.transaction_outputs[0])
+
             if node.public_key == transaction.receiver_address:
                 node.balance += transaction.amount
-                node.utxos.extend(transaction.transaction_outputs[1])
+                node.utxos.append(transaction.transaction_outputs[1])

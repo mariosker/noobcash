@@ -15,7 +15,7 @@ class Adapters:
     def __init__(self):
         self.node_usecase = NodeUsecase()
 
-    def create_transaction(self, receiver_address: str, amount: int):
+    def create_transaction(self, receiver_address: bytes, amount: int):
         return TransactionUsecase(self.node_usecase.node).create(
             receiver_address, amount)
 

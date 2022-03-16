@@ -7,22 +7,32 @@ from dataclasses import dataclass
 from src.pkg import crypto
 
 
-@dataclass
-class TransactionOutput:
-    """ Output object in in the transaction outputs list
+class TransactionDerivative:
+
+    def __init__(self, id, value):
+        self.value = value
+        self.id = id
+
+    def __eq__(self, other):
+        return self.id == other.id
+
+
+class TransactionOutput(TransactionDerivative):
+    """ Output object in the transaction outputs list
     """
-    transaction_id: str
-    receiver: str
-    value: int
-    id: int = uuid.uuid4().int
+
+    def __init__(self, transaction_id, receiver, value):
+        super().__init__(uuid.uuid4().int, value)
+        self.transaction_id = transaction_id
+        self.receiver = receiver
 
 
-@dataclass
-class TransactionInput:
+class TransactionInput(TransactionDerivative):
     """ Input object in the transaction outputs list
     """
-    id: int
-    value: int
+
+    def __init__(self, id, value):
+        super().__init__(id, value)
 
 
 class Transaction:
@@ -88,7 +98,8 @@ class Transaction:
 
         sender_output = TransactionOutput(transaction_id=self.transaction_id,
                                           receiver=self.sender_address,
-                                          value=total_input_amount - self.amount)
+                                          value=total_input_amount -
+                                          self.amount)
 
         receiver_output = TransactionOutput(transaction_id=self.transaction_id,
                                             receiver=self.receiver_address,
