@@ -9,7 +9,7 @@ class RestAPI:
         self.port = port
 
     def create_transaction(self, receiver, amount):
-        data = {'receiver_address': receiver, 'amount': amount}
+        data = {'node_id': receiver, 'amount': amount}
         resp = requests.post(self.host + ':' + self.port +
                              config.TRANSACTION_URL,
                              data=data)
