@@ -13,7 +13,7 @@ from src.repository.transaction import Transaction, TransactionInput
 from src.repository.wallet import Wallet
 
 
-class _Node:
+class Node:
     """User using the blockchain
     """
 
@@ -38,10 +38,18 @@ class _Node:
         for node in self.ring:
             if node.host == self.node_info.host:
                 continue
-            resp = poll_endpoint(f'http://{node.host}:{node.port}{URL}',
-                                 data=obj,
-                                 requests_function=requests_function)
-            responses.append(resp)
+            if requests_function == requests.post:
+                resp = poll_endpoint(f'http://{node.host}:{node.port}{URL}',
+                                     request_type='post',
+                                     data=obj)
+
+                responses.append(resp)
+            else:
+                resp = poll_endpoint(f'http://{node.host}:{node.port}{URL}',
+                                     request_type='get',
+                                     data=obj)
+
+                responses.append(resp)
 
         return responses
 
@@ -93,7 +101,7 @@ class _Node:
 
         self.update_transactions(transaction)
         self.pending_transactions.append(transaction)
-
+        return True
     def validate_transaction(self, transaction: Transaction):
         if not transaction.verify_signature(transaction.sender_address):
             config.logger.debug('cannot verify')
@@ -199,8 +207,7 @@ class _Node:
         response = None
         for node in self.ring:
             if node.id == id:
-                response = requests.get(node.host + ':' + node.port +
-                                        config.NODE_RING_AND_TRANSACTION)
+                response = poll_endpoint(f'{node.host}:{node.port}{config.NODE_RING_AND_TRANSACTION}', request_type='get',)
                 response = pickle.loads(response.data)
                 break
 

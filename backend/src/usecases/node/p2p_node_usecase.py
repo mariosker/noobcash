@@ -1,6 +1,6 @@
-from src.repository.p2p_node import P2PNode
+from src.repository.node.p2p_node import P2PNode
 from src.repository.ring import Ring
-from src.usecases.node_usecase import NodeUsecase
+from src.usecases.node.node_usecase import NodeUsecase
 
 
 class P2PNodeUsecase(NodeUsecase):

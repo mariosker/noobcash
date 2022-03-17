@@ -4,9 +4,9 @@ from config import config
 from flask import Flask, request
 
 from src.usecases.blockchain_usecase import BlockChainUsecase
-from src.usecases.bootstrap_node_usecase import BootstrapNodeUsecase
-from src.usecases.node_usecase import NodeUsecase
-from src.usecases.p2p_node_usecase import P2PNodeUsecase
+from src.usecases.node.bootstrap_node_usecase import BootstrapNodeUsecase
+from src.usecases.node.node_usecase import NodeUsecase
+from src.usecases.node.p2p_node_usecase import P2PNodeUsecase
 from src.usecases.transaction_usecase import TransactionUsecase
 from src.usecases.wallet_usecase import WalletUsecase
 
@@ -16,7 +16,6 @@ class RouteHandler:
     def __init__(self, app: Flask) -> None:
         self.app = app
         self.node_usecase = NodeUsecase()
-        self._init_endpoints()
 
     def _add_endpoint(self, rule='/', view_func=None, methods=None):
         self.app.add_url_rule(rule, view_func=view_func, methods=methods)
@@ -55,41 +54,49 @@ class RouteHandler:
         receiver_address = request.args.get("receiver_address")
         amount = request.args.get("amount")
         if TransactionUsecase(self.node_usecase.node).create(
-            receiver_address, amount):
+                receiver_address, amount):
             return ('could not create transaction', 500)
         return ('transaction created successfully', 200)
 
     def register_transaction_to_block(self):
         transaction = pickle.loads(request.get_data())
-        return TransactionUsecase(self.node_usecase.node).register(transaction)
+        return ('transaction created successfully', 204) if TransactionUsecase(
+            self.node_usecase.node).register(transaction) else (
+                'could not create transaction', 500)
 
     def register_incoming_block(self):
         block = pickle.loads(request.get_data())
         return self.node_usecase.register_incoming_block(block)
 
     def get_transactions_from_last_block(self):
-        return TransactionUsecase(self.node_usecase.node).get_transactions_from_last_block()
+        return TransactionUsecase(
+            self.node_usecase.node).get_transactions_from_last_block()
 
     def get_balance(self):
         return str(WalletUsecase(self.node_usecase.node).get_balance())
 
     def get_chain(self):
-        return BlockChainUsecase(self.node_usecase.node).get_chain()
+        chain = BlockChainUsecase(self.node_usecase.node).get_chain()
+        chain = pickle.dumps(chain)
+        return chain
 
     def set_chain(self):
         chain = pickle.loads(request.get_data())
         return self.node_usecase.set_chain(chain)
 
     def get_ring_and_transactions(self):
-        return self.node_usecase.get_ring_and_transactions()
+        ring_and_transactions_pickled = pickle.dumps(
+            self.node_usecase.get_ring_and_transactions)
+        return ring_and_transactions_pickled
 
 
 class BootstrapRouteHandler(RouteHandler):
 
     def __init__(self, app) -> None:
         super().__init__(app)
-        self.usecase = BootstrapNodeUsecase()
+        self.node_usecase = BootstrapNodeUsecase()
         self._init_specific_endpoints()
+        self._init_endpoints()
 
     def _init_specific_endpoints(self):
         add_endpoint = self._add_endpoint
@@ -99,11 +106,7 @@ class BootstrapRouteHandler(RouteHandler):
 
     def register_node(self):
         node_info = pickle.loads(request.get_data())
-        ip = request.environ['REMOTE_ADDR']
-        port = str(request.environ['REMOTE_PORT'])
-        node_info = self.usecase.register_node(node_info)
-        node_info.host = ip
-        node_info.port = port
+        node_info = self.node_usecase.register_node(node_info)
         return pickle.dumps(node_info)
 
 
@@ -111,8 +114,9 @@ class P2PRouteHandler(RouteHandler):
 
     def __init__(self, app) -> None:
         super().__init__(app)
-        self.usecase = P2PNodeUsecase()
+        self.node_usecase = P2PNodeUsecase()
         self._init_specific_endpoints()
+        self._init_endpoints()
 
     def _init_specific_endpoints(self):
         add_endpoint = self._add_endpoint
@@ -122,6 +126,6 @@ class P2PRouteHandler(RouteHandler):
         data = pickle.loads(request.get_data())
         ring = data['ring']
         blockchain = data['blockchain']
-        self.usecase.set_ring(ring)
+        self.node_usecase.set_ring(ring)
         self.node_usecase.set_chain(blockchain)
         return ('', 204)

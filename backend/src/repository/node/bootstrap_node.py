@@ -4,12 +4,12 @@ from threading import Thread
 from config import config
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
-from src.repository.node import _Node
+from src.repository.node.node import Node
 from src.repository.ring import RingNode
 from src.repository.transaction import Transaction
 
 
-class BootstrapNode(_Node):
+class BootstrapNode(Node):
 
     def __init__(self):
         super().__init__()
@@ -55,6 +55,8 @@ class BootstrapNode(_Node):
         return node_info
 
     def _init_blockchain(self):
+        print("-----------------------------------------------------------")
+        print('DEBUGGGGGG', vars(self.ring), 'GGG', vars(self.blockchain))
         self._broadcast_current_state()
         self._send_first_transactions()
 

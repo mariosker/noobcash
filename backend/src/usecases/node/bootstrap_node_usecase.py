@@ -1,6 +1,6 @@
-from src.repository.bootstrap_node import BootstrapNode
+from src.repository.node.bootstrap_node import BootstrapNode
 from src.repository.ring import RingNode
-from src.usecases.node_usecase import NodeUsecase
+from src.usecases.node.node_usecase import NodeUsecase
 
 
 class BootstrapNodeUsecase(NodeUsecase):
