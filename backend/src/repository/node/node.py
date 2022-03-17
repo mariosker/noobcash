@@ -1,6 +1,6 @@
 import pickle
 from collections import deque
-from threading import Thread
+from threading import Thread, Event, Lock
 from time import sleep
 
 import requests
@@ -29,7 +29,8 @@ class Node:
                                   utxos=self.wallet.unspent_transactions,
                                   balance=self.wallet.get_balance())
         self.pending_transactions = deque()
-        self.can_mine = True
+        self.pause_transaction_handler = Event()
+        self.lock = Lock()
 
         Thread(target=self.handle_pending_transactions).start()
 
@@ -102,6 +103,7 @@ class Node:
         self.update_transactions(transaction)
         self.pending_transactions.append(transaction)
         return True
+
     def validate_transaction(self, transaction: Transaction):
         if not transaction.verify_signature(transaction.sender_address):
             config.logger.debug('cannot verify')
@@ -130,8 +132,9 @@ class Node:
     def mine_block(self, block: Block):
         """Mines the block until it begins with MINING_DIFFICULTY zeroes
         """
-        while not block.current_hash.startswith(
-                '0' * config.MINING_DIFFICULTY) and self.can_mine:
+        while not block.current_hash.startswith('0' * config.MINING_DIFFICULTY):
+            if self.pause_transaction_handler.is_set():
+                raise Exception("Mining interrupted by event.")
             block.nonce += 1
             block.current_hash = block.calculate_hash()
 
@@ -142,8 +145,13 @@ class Node:
     def handle_pending_transactions(self):
         # TODO: check locks and stuff
         while True:
-            if len(self.pending_transactions
-                  ) < config.BLOCK_CAPACITY or not self.can_mine:
+            sleep(1.0)
+            if self.pause_transaction_handler.is_set():
+                continue
+
+            self.lock.acquire()
+
+            if len(self.pending_transactions) < config.BLOCK_CAPACITY:
                 continue
 
             transactions = [
@@ -154,18 +162,14 @@ class Node:
             pending_block = Block(len(self.blockchain),
                                   self.blockchain.get_last_block().current_hash,
                                   transactions)
-
-            self.mine_block(pending_block)
-
-            if self.can_mine:
+            try:
+                self.mine_block(pending_block)
                 self._broadcast_block(pending_block)
-
-                try:
-                    self._register_mined_block(pending_block)
-                except ValueError:
-                    self.pending_transactions.extendleft(transactions)
-            else:
+                self._register_mined_block(pending_block)
+            except:
                 self.pending_transactions.extendleft(transactions)
+
+            self.lock.release()
 
     def update_transactions(self, transaction: Transaction):
         try:
@@ -178,7 +182,8 @@ class Node:
         self.blockchain.add_block(block)
 
     def register_incoming_block(self, block: Block):
-        self.can_mine = False
+        self.pause_transaction_handler.set()
+        self.lock.acquire()
         sleep(3)
         try:
             self.blockchain.add_block(block)
@@ -190,14 +195,17 @@ class Node:
                     self.update_transactions(transaction)
         except Exception as err:
             config.logger.debug(err)
-            self.resolve_confict()
+            self.resolve_conflict()
         self.can_mine = True
+
+        self.lock.release()
+        self.pause_transaction_handler.clear()
 
     def _broadcast_block(self, block: Block):
         data_pickled = pickle.dumps(block)
         self.broadcast(config.BLOCK_REGISTER_URL, data_pickled)
 
-    def _request_blockhain(self):
+    def _request_blockchain(self):
         responses = self.broadcast(config.NODE_BLOCKCHAIN_URL,
                                    None,
                                    requests_function=requests.get)
@@ -207,15 +215,18 @@ class Node:
         response = None
         for node in self.ring:
             if node.id == id:
-                response = poll_endpoint(f'{node.host}:{node.port}{config.NODE_RING_AND_TRANSACTION}', request_type='get',)
+                response = poll_endpoint(
+                    f'{node.host}:{node.port}{config.NODE_RING_AND_TRANSACTION}',
+                    request_type='get',
+                )
                 response = pickle.loads(response.data)
                 break
 
         return response
 
-    def resolve_confict(self):
+    def resolve_conflict(self):
         # NOTE: maybe needs threading
-        responses = self._request_blockhain()
+        responses = self._request_blockchain()
         responses.sort(key=lambda x: x['blockchain'], reverse=True)
 
         max_response = {'blockchain': self.blockchain, 'id': self.node_info.id}
