@@ -18,7 +18,7 @@ class Block:
         Args:
             index (int): the index of the block in the blockchain
             previous_hash (str): hash of the previous block
-            transactions (List[Trasaction]): list of all unspent transactions on the block
+            transactions (List[Transaction]): list of all unspent transactions on the block
         """
         self.index = index
         self.timestamp = time.time()
