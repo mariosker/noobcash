@@ -2,6 +2,7 @@ import pickle
 
 import requests
 from config import config
+from copy import deepcopy
 from src.pkg.requests import poll_endpoint
 from src.repository.node.node import Node
 from src.repository.ring import Ring, RingNode
@@ -23,7 +24,8 @@ class P2PNode(Node):
         tmp_node_info = RingNode(id=-1,
                                  host=config.HOST,
                                  port=config.PORT,
-                                 utxos=self.wallet.unspent_transactions,
+                                 utxos=deepcopy(
+                                     self.wallet.unspent_transactions),
                                  public_key=self.wallet.public_key)
 
         ring_node_serial = pickle.dumps(tmp_node_info)
