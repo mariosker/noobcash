@@ -143,10 +143,13 @@ class Node:
         self.blockchain = blockchain
 
     def handle_pending_transactions(self):
-        # TODO: check locks and stuff
         while True:
-            sleep(1.0)
-            if self.pause_transaction_handler.is_set():
+            # sleep(1.0)
+            # if self.pause_transaction_handler.is_set():
+            #     continue
+
+            # more elegant solution
+            if self.pause_transaction_handler.wait(timeout=0.1):
                 continue
 
             self.lock.acquire()
