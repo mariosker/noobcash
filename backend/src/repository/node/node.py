@@ -5,6 +5,7 @@ from time import sleep
 
 import requests
 from config import config
+from copy import deepcopy
 from src.pkg.requests import poll_endpoint
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
@@ -37,7 +38,7 @@ class Node:
     def broadcast(self, URL: str, obj, requests_function=requests.post):
         responses = []
         for node in self.ring:
-            if node.host == self.node_info.host:
+            if node.public_key == self.wallet.public_key:
                 continue
             if requests_function == requests.post:
                 resp = poll_endpoint(f'http://{node.host}:{node.port}{URL}',
@@ -58,7 +59,7 @@ class Node:
         transaction_inputs = []
         transactions_to_be_spent = deque()
         input_amount = 0
-
+        print("INTO TRANSACTION")
         if self.wallet.get_balance() < amount:
             raise ValueError(
                 f'You have {self.wallet.get_balance()} coins but want to use {amount} coins'
@@ -81,11 +82,17 @@ class Node:
 
         config.logger.debug("before broadcast")
         # TODO: EVERYDAY MALAKIA
+
         self.wallet.update_wallet(transaction)
         self.ring.update_balance(transaction)
-        transaction_pickled = pickle.dumps(transaction)
-        self.broadcast(config.TRANSACTION_REGISTER_URL, transaction_pickled)
         self.pending_transactions.append(transaction)
+
+        transaction_pickled = pickle.dumps(transaction)
+        Thread(target=self.broadcast,
+               args=(config.TRANSACTION_REGISTER_URL,
+                     transaction_pickled)).start()
+
+        config.logger.debug("after broadcast")
 
     def register_transaction(self, transaction: Transaction):
         """Register a transaction that came from other nodes and queue it to be added in a block
@@ -247,10 +254,10 @@ class Node:
         response = self._request_ring_and_transactions_from_node(
             max_response['id'])
 
-        self.blockchain = max_response['blockchain']
-        self.ring = response['ring']
-        self.pending_transactions = response['transactions']
+        self.blockchain = deepcopy(max_response['blockchain'])
+        self.ring = deepcopy(response['ring'])
+        self.pending_transactions = deepcopy(response['transactions'])
 
         for node in self.ring:
             if node.id == self.node_info.id:
-                self.wallet.unspent_transactions = node.utxos
+                self.wallet.unspent_transactions = deepcopy(node.utxos)

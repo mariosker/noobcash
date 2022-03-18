@@ -9,11 +9,11 @@ class RestAPI:
         self.port = port
 
     def create_transaction(self, receiver, amount):
-        data = {'receiver_address': receiver, 'amount': amount}
+        data = {'node_id': receiver, 'amount': amount}
         resp = requests.post(self.host + ':' + self.port +
                              config.TRANSACTION_URL,
                              data=data)
-        if resp.status_code != 200:
+        if not resp.ok:
             raise ValueError('Cannot create transaction')
 
         print(f"Transaction successfully created")
@@ -21,12 +21,13 @@ class RestAPI:
     def view_last_transactions(self):
         resp = requests.get(self.host + ':' + self.port +
                             config.TRANSACTION_URL)
-        if resp.status_code != 200:
+
+        if not resp.ok:
             raise ValueError('Cannot view last transactions')
         return resp.content
 
     def get_balance(self):
         resp = requests.get(self.host + ':' + self.port + config.BALANCE_URL)
-        if resp.status_code != 200:
+        if not resp.ok:
             raise ValueError('Cannot get balance')
         return int(resp.content)

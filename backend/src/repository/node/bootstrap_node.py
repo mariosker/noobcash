@@ -2,6 +2,7 @@ import pickle
 from threading import Thread
 
 from config import config
+from copy import deepcopy
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
 from src.repository.node.node import Node
@@ -17,7 +18,8 @@ class BootstrapNode(Node):
                                   host=config.HOST,
                                   port=config.PORT,
                                   public_key=self.wallet.public_key,
-                                  utxos=self.wallet.unspent_transactions,
+                                  utxos=deepcopy(
+                                      self.wallet.unspent_transactions),
                                   balance=self.wallet.get_balance())
 
         self.ring.append(self.node_info)
@@ -68,6 +70,7 @@ class BootstrapNode(Node):
     def _send_first_transactions(self):
         try:
             for node in self.ring:
+                print('Transactions sent')
                 if node == self.node_info:
                     continue
 

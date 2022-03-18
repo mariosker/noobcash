@@ -15,7 +15,7 @@ class RouteHandler:
 
     def __init__(self, app: Flask) -> None:
         self.app = app
-        self.node_usecase = NodeUsecase()
+        self.node_usecase = None
 
     def _add_endpoint(self, rule='/', view_func=None, methods=None):
         self.app.add_url_rule(rule, view_func=view_func, methods=methods)
@@ -51,12 +51,15 @@ class RouteHandler:
                      methods=['GET'])
 
     def create_transaction(self):
-        receiver_address = request.args.get("receiver_address")
-        amount = request.args.get("amount")
-        if TransactionUsecase(self.node_usecase.node).create(
-                receiver_address, amount):
-            return ('could not create transaction', 500)
-        return ('transaction created successfully', 200)
+        print("JUST GOT IN CREATE_TRANSACTION")
+
+        node_id = int(request.form['node_id'])
+        amount = int(request.form['amount'])
+
+        print("JUST BEFORE TRANSACTION USECASE")
+        return ('transaction created',
+                204) if TransactionUsecase(self.node_usecase.node).create(
+                    node_id, amount) else ('could not create transaction', 500)
 
     def register_transaction_to_block(self):
         transaction = pickle.loads(request.get_data())

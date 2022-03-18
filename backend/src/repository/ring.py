@@ -52,6 +52,20 @@ class Ring:
         except StopIteration:
             return None
 
+    def get_node_by_id(self, node_id: int) -> RingNode:
+        """Returns the node with the specific address
+
+        Args:
+            sender_address (str): The address of the node to return
+
+        Returns:
+            RingNode: A node that contains info about a client in the blockchain
+        """
+        try:
+            return next(n for n in self.ring if node_id == n.id)
+        except StopIteration:
+            return None
+
     def __iter__(self):
         for each in self.ring:
             yield each

@@ -10,14 +10,14 @@ else:
 logger.basicConfig(level=logging.DEBUG)
 IS_LOCAL = True
 HOST = os.getenv('HOST', 'localhost')
-PORT = os.getenv('PORT')
+PORT = os.getenv('PORT', '5000')
 IS_BOOTSRAP = bool(os.getenv('IS_BOOTSTRAP'))
 BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST', 'localhost')
 BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT', '5000')
 
 MAX_USER_COUNT = int(os.getenv('MAX_USER_COUNT', '5'))
-BLOCK_CAPACITY = int(os.getenv('BLOCK_CAPACITY', '10'))
-MINING_DIFFICULTY = int(os.getenv('MINING_DIFFICULTY', '10'))
+BLOCK_CAPACITY = int(os.getenv('BLOCK_CAPACITY', '3'))
+MINING_DIFFICULTY = int(os.getenv('MINING_DIFFICULTY', '3'))
 
 NBC_PER_NODE = 100
 
