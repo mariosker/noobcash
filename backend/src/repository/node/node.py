@@ -32,7 +32,7 @@ class Node:
         self.pending_transactions = deque()
         self.pause_transaction_handler = Event()
         self.lock = Lock()
-
+        self.transaction_lock = Lock()
         Thread(target=self.handle_pending_transactions).start()
 
     def broadcast(self, URL: str, obj, requests_function=requests.post):
@@ -56,11 +56,13 @@ class Node:
         return responses
 
     def create_transaction(self, receiver_address: bytes, amount: int):
+        self.transaction_lock.acquire()
         transaction_inputs = []
         transactions_to_be_spent = deque()
         input_amount = 0
         print("INTO TRANSACTION")
         if self.wallet.get_balance() < amount:
+            self.transaction_lock.release()
             raise ValueError(
                 f'You have {self.wallet.get_balance()} coins but want to use {amount} coins'
             )
@@ -78,19 +80,21 @@ class Node:
         config.logger.debug("before validate")
         if not self.validate_transaction(transaction):
             self.wallet.unspent_transactions.extend(transactions_to_be_spent)
+            self.transaction_lock.release()
             raise ValueError('Transaction is invalid')
 
         config.logger.debug("before broadcast")
-        # TODO: EVERYDAY MALAKIA
 
         self.wallet.update_wallet(transaction)
-        self.ring.update_balance(transaction)
+        self.ring.update_unspent_transactions(transaction)
         self.pending_transactions.append(transaction)
 
         transaction_pickled = pickle.dumps(transaction)
         Thread(target=self.broadcast,
                args=(config.TRANSACTION_REGISTER_URL,
                      transaction_pickled)).start()
+
+        self.transaction_lock.release()
 
         config.logger.debug("after broadcast")
 
@@ -103,7 +107,6 @@ class Node:
         Raises:
             ValueError: _description_
         """
-        print(vars(transaction))
         if not self.validate_transaction(transaction):
             raise ValueError('Transaction not valid')
 
@@ -151,18 +154,19 @@ class Node:
 
     def handle_pending_transactions(self):
         while True:
-            # sleep(1.0)
-            # if self.pause_transaction_handler.is_set():
+            sleep(0.1)
+            if self.pause_transaction_handler.is_set():
+                continue
+            # more elegant solution
+            # if self.pause_transaction_handler.wait(timeout=0.1):
             #     continue
 
-            # more elegant solution
-            if self.pause_transaction_handler.wait(timeout=0.1):
-                continue
-
             self.lock.acquire()
-
             if len(self.pending_transactions) < config.BLOCK_CAPACITY:
+                self.lock.release()
                 continue
+
+            config.logger.debug("Making a new block")
 
             transactions = [
                 self.pending_transactions.pop()
@@ -176,6 +180,7 @@ class Node:
                 self.mine_block(pending_block)
                 self._broadcast_block(pending_block)
                 self._register_mined_block(pending_block)
+                config.logger.debug("Making a new block: A OK")
             except:
                 self.pending_transactions.extendleft(transactions)
 
@@ -186,7 +191,7 @@ class Node:
             self.wallet.update_wallet(transaction)
         except Exception as err:
             config.logger.debug(err)
-        self.ring.update_balance(transaction)
+        self.ring.update_unspent_transactions(transaction)
 
     def _register_mined_block(self, block: Block):
         self.blockchain.add_block(block)
@@ -206,7 +211,6 @@ class Node:
         except Exception as err:
             config.logger.debug(err)
             self.resolve_conflict()
-        self.can_mine = True
 
         self.lock.release()
         self.pause_transaction_handler.clear()
@@ -219,7 +223,8 @@ class Node:
         responses = self.broadcast(config.NODE_BLOCKCHAIN_URL,
                                    None,
                                    requests_function=requests.get)
-        return [pickle.loads(r.data) for r in responses]
+        print(responses)
+        return [pickle.loads(r.content) for r in responses]
 
     def _request_ring_and_transactions_from_node(self, id):
         response = None
@@ -229,7 +234,7 @@ class Node:
                     f'{node.host}:{node.port}{config.NODE_RING_AND_TRANSACTION}',
                     request_type='get',
                 )
-                response = pickle.loads(response.data)
+                response = pickle.loads(response.content)
                 break
 
         return response
@@ -237,15 +242,16 @@ class Node:
     def resolve_conflict(self):
         # NOTE: maybe needs threading
         responses = self._request_blockchain()
-        responses.sort(key=lambda x: x['blockchain'], reverse=True)
+        responses.sort(key=lambda x: Blockchain(x['blockchain']), reverse=True)
 
         max_response = {'blockchain': self.blockchain, 'id': self.node_info.id}
 
         for resp in responses:
-            if not resp['blockchain'].validate_chain():
+            current_blockchain = Blockchain(resp['blockchain'])
+            if not current_blockchain.validate_chain():
                 continue
 
-            max_response = resp if resp['blockchain'] > max_response[
+            max_response = resp if current_blockchain > max_response[
                 'blockchain'] else max_response
 
         if max_response['id'] == self.node_info.id:

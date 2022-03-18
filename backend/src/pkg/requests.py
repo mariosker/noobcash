@@ -9,7 +9,7 @@ from requests.adapters import HTTPAdapter, Retry
 def poll_endpoint(url: str, request_type='post', data=None):
 
     s = requests.Session()
-
+    r = None
     retries = Retry(total=5,
                     backoff_factor=2,
                     status_forcelist=[429, 500, 502, 503, 504])

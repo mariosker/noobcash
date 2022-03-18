@@ -70,7 +70,7 @@ class Ring:
         for each in self.ring:
             yield each
 
-    def update_balance(self, transaction: Transaction):
+    def update_unspent_transactions(self, transaction: Transaction):
         for node in self.ring:
             if node.public_key == transaction.sender_address:
                 node.balance -= transaction.amount

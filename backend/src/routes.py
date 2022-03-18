@@ -69,7 +69,8 @@ class RouteHandler:
 
     def register_incoming_block(self):
         block = pickle.loads(request.get_data())
-        return self.node_usecase.register_incoming_block(block)
+        self.node_usecase.register_incoming_block(block)
+        return ('Block registered', 204)
 
     def get_transactions_from_last_block(self):
         return TransactionUsecase(
