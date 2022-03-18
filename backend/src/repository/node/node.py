@@ -2,6 +2,7 @@ import pickle
 from collections import deque
 from threading import Thread, Event, Lock
 from time import sleep
+import time
 
 import requests
 from config import config
@@ -143,6 +144,7 @@ class Node:
             block.nonce += 1
             block.current_hash = block.calculate_hash()
         print("-" * 5 + "MINED" + "-" * 5)
+        print("-" * 5 + str(time.time()) + "-" * 5)
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
         config.logger.debug("I got the blockchain YIPkAY")
@@ -225,8 +227,8 @@ class Node:
 
     def _broadcast_block(self, block: Block):
         print("DEN MPORW EGW ME TO ZORI", vars(block))
-        for t in block.transactions:
-            print(vars(t))
+        # for t in block.transactions:
+        #     print(vars(t))
         data_pickled = pickle.dumps(block)
         self.broadcast(config.BLOCK_REGISTER_URL, data_pickled)
 
@@ -262,8 +264,9 @@ class Node:
             if not current_blockchain.validate_chain():
                 continue
 
-            max_response = resp if current_blockchain > max_response[
-                'blockchain'] else max_response
+            if current_blockchain > max_response['blockchain']:
+                max_response['blockchain'] = deepcopy(current_blockchain)
+                max_response['id'] = resp['id']
 
         if max_response['id'] == self.node_info.id:
             return

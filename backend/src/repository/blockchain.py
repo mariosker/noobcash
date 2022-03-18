@@ -38,8 +38,8 @@ class Blockchain:
         prev_block = self.chain[block.index - 1]
 
         print("CURRENT M A L A K I A", vars(block))
-        for t in block.transactions:
-            print(vars(t))
+        # for t in block.transactions:
+        #     print(vars(t))
         print("PREV", vars(prev_block))
 
         print("CURRENT HASH", block.current_hash, "CALCULATE HASH",

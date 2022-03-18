@@ -29,7 +29,9 @@ class TransactionUsecase:
         transactions = last_block.get_transactions()
 
         # TODO: FIX ME
-        return "".join([vars(t) for t in transactions])
+        aa = [vars(t) for t in transactions]
+        return "_-_".join([str(v) for v in aa])
+        # return str(vars(last_block))
 
     def register(self, transaction: Transaction):
         return self.node.register_transaction(transaction)
