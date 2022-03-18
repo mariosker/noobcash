@@ -60,7 +60,6 @@ class Node:
         transaction_inputs = []
         transactions_to_be_spent = deque()
         input_amount = 0
-        print("INTO TRANSACTION")
         if self.wallet.get_balance() < amount:
             self.transaction_lock.release()
             raise ValueError(
@@ -77,13 +76,11 @@ class Node:
         transaction = Transaction(self.wallet.public_key, receiver_address,
                                   amount, transaction_inputs,
                                   self.wallet.private_key)
-        config.logger.debug("before validate")
+
         if not self.validate_transaction(transaction):
             self.wallet.unspent_transactions.extend(transactions_to_be_spent)
             self.transaction_lock.release()
             raise ValueError('Transaction is invalid')
-
-        config.logger.debug("before broadcast")
 
         self.wallet.update_wallet(transaction)
         self.ring.update_unspent_transactions(transaction)
@@ -95,8 +92,6 @@ class Node:
                      transaction_pickled)).start()
 
         self.transaction_lock.release()
-
-        config.logger.debug("after broadcast")
 
     def register_transaction(self, transaction: Transaction):
         """Register a transaction that came from other nodes and queue it to be added in a block
@@ -147,6 +142,7 @@ class Node:
                 raise Exception("Mining interrupted by event.")
             block.nonce += 1
             block.current_hash = block.calculate_hash()
+        print("-" * 5 + "MINED" + "-" * 5)
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
         config.logger.debug("I got the blockchain YIPkAY")
@@ -177,13 +173,17 @@ class Node:
                                   self.blockchain.get_last_block().current_hash,
                                   transactions)
             try:
+                config.logger.debug("before mine")
                 self.mine_block(pending_block)
-                self._broadcast_block(pending_block)
+                config.logger.debug("before register mined block")
                 self._register_mined_block(pending_block)
-                config.logger.debug("Making a new block: A OK")
+                config.logger.debug("before broadcast block")
             except:
                 self.pending_transactions.extendleft(transactions)
-
+            else:
+                Thread(target=self._broadcast_block,
+                       args=(deepcopy(pending_block),)).start()
+                config.logger.debug("Making a new block: A OK")
             self.lock.release()
 
     def update_transactions(self, transaction: Transaction):
@@ -197,25 +197,36 @@ class Node:
         self.blockchain.add_block(block)
 
     def register_incoming_block(self, block: Block):
+        # TODO: check index???
+        print("A BLOCK CAME WHAZZZZ UP")
         self.pause_transaction_handler.set()
         self.lock.acquire()
-        sleep(3)
-        try:
-            self.blockchain.add_block(block)
 
+        try:
+            if block.index != self.blockchain.get_last_block().index + 1:
+                raise ValueError("Block has wrong index")
+
+            self.blockchain.add_block(block)
+            print("BLOCK ADDED YEAH")
             for transaction in block.transactions:
                 if transaction in self.pending_transactions:
+                    print("TRANSACTIONS REMOVED")
                     self.pending_transactions.remove(transaction)
                 else:
+                    print("UPDATING TRANSACTIONS")
                     self.update_transactions(transaction)
         except Exception as err:
-            config.logger.debug(err)
+            print(err)
+            print("CONFLICT OOPS")
             self.resolve_conflict()
 
         self.lock.release()
         self.pause_transaction_handler.clear()
 
     def _broadcast_block(self, block: Block):
+        print("DEN MPORW EGW ME TO ZORI", vars(block))
+        for t in block.transactions:
+            print(vars(t))
         data_pickled = pickle.dumps(block)
         self.broadcast(config.BLOCK_REGISTER_URL, data_pickled)
 

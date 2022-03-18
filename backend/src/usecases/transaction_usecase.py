@@ -28,7 +28,8 @@ class TransactionUsecase:
             return []
         transactions = last_block.get_transactions()
 
-        return [vars(t) for t in transactions]
+        # TODO: FIX ME
+        return "".join([vars(t) for t in transactions])
 
     def register(self, transaction: Transaction):
         return self.node.register_transaction(transaction)

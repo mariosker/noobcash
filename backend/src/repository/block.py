@@ -35,7 +35,7 @@ class Block:
         """
         to_hash = str(self.timestamp) + str(self.nonce) + str(
             self.previous_hash) + "".join(
-                str(vars(t)) for t in self.transactions)
+                str(t.transaction_id) for t in self.transactions)
         return crypto.hash_to_str(to_hash)
 
     # TODO: Delete
