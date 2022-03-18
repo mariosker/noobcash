@@ -12,7 +12,7 @@ class RestAPI:
         data = {'node_id': receiver, 'amount': amount}
         resp = requests.post(self.host + ':' + self.port +
                              config.TRANSACTION_URL,
-                             params=data)
+                             data=data)
         if not resp.ok:
             raise ValueError('Cannot create transaction')
 
