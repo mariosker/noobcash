@@ -9,6 +9,7 @@ from src.repository.transaction import Transaction
 class NodeUsecase():
 
     def __init__(self):
+        # TODO: remove node because it is initialized elsewhere
         self.node = Node()
 
     def set_chain(self, blockchain: Blockchain):

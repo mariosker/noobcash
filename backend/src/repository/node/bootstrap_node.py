@@ -26,9 +26,9 @@ class BootstrapNode(Node):
         self.genesis_block = self._create_genesis_block()
         self.blockchain = Blockchain([self.genesis_block])
 
-
     def _create_genesis_block(self) -> Block:
         genesis_amount = config.NBC_PER_NODE * config.MAX_USER_COUNT
+        # TODO: try private_key = None
         genesis_transaction = Transaction('0', self.wallet.public_key,
                                           genesis_amount, [],
                                           self.wallet.private_key)

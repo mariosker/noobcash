@@ -22,8 +22,8 @@ class Node:
     def __init__(self) -> None:
         self.wallet = Wallet()
         self.ring = Ring([])
-        self.blocks_to_mine = deque()
         self.blockchain = Blockchain()
+        # TODO: Maybe remove node_info
         self.node_info = RingNode(id=-1,
                                   host=config.HOST,
                                   port=config.PORT,
@@ -128,11 +128,19 @@ class Node:
         """
         while not block.current_hash.startswith('0' * config.MINING_DIFFICULTY):
             if self.pause_transaction_handler.is_set():
+                config.logger.debug('''
+                |------------------|
+                |  STOPPED MINING  |
+                |------------------|
+                ''')
                 raise Exception("Mining interrupted by event.")
             block.nonce += 1
             block.current_hash = block.calculate_hash()
-        print("-" * 5 + "MINED" + "-" * 5)
-        print("-" * 5 + str(time.time()) + "-" * 5)
+        config.logger.debug('''
+        |------------------|
+        |      MINED       |
+        |------------------|
+        ''')
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
         config.logger.debug("I got the blockchain YIPkAY")
