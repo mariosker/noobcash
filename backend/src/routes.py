@@ -51,12 +51,9 @@ class RouteHandler:
                      methods=['GET'])
 
     def create_transaction(self):
-        print("JUST GOT IN CREATE_TRANSACTION")
-
         node_id = int(request.form['node_id'])
         amount = int(request.form['amount'])
 
-        print("JUST BEFORE TRANSACTION USECASE")
         return ('transaction created',
                 204) if TransactionUsecase(self.node_usecase.node).create(
                     node_id, amount) else ('could not create transaction', 500)

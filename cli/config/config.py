@@ -1,6 +1,5 @@
 import logging
 import os
-import socket
 
 logger = logging
 if os.getenv('env') != 'PROD':

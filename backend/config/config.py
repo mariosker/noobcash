@@ -13,7 +13,7 @@ HOST = os.getenv('HOST', 'localhost')
 PORT = os.getenv('PORT', '5000')
 IS_BOOTSRAP = bool(os.getenv('IS_BOOTSTRAP'))
 BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST', 'localhost')
-BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT', '6000')
+BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT', '5000')
 
 MAX_USER_COUNT = int(os.getenv('MAX_USER_COUNT', '10'))
 BLOCK_CAPACITY = int(os.getenv('BLOCK_CAPACITY', '10'))

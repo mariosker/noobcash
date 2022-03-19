@@ -16,7 +16,9 @@ class RestAPI:
         if not resp.ok:
             raise ValueError('Cannot create transaction')
 
-        print(f"Transaction successfully created")
+        print(
+            f"Transaction of {amount} NBC coins to node {receiver} successfully created!"
+        )
 
     def view_last_transactions(self):
         resp = requests.get(self.host + ':' + self.port +
