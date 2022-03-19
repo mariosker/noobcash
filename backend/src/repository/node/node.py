@@ -121,18 +121,6 @@ class Node:
                 if node.balance >= transaction.amount:
                     return True
 
-        # current_node = self.ring.get_node(
-        #     transaction.sender_address.decode('utf-8'))
-
-        # if not current_node:
-        #     config.logger.debug('current node')
-        #     return False
-
-        # if current_node.balance >= transaction.amount:
-        #     return True
-
-        # config.logger.debug('else')
-
         return False
 
     def mine_block(self, block: Block):
@@ -199,7 +187,6 @@ class Node:
         self.blockchain.add_block(block)
 
     def register_incoming_block(self, block: Block):
-        # TODO: check index???
         print("A BLOCK CAME WHAZZZZ UP")
         self.pause_transaction_handler.set()
         self.lock.acquire()

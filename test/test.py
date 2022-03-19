@@ -11,14 +11,12 @@ from functools import partial
 LIMIT_TRANSACTIONS = None
 
 node_data = lambda host, port: {'host': host, 'port': port}
-nodes = [node_data('http://localhost', p) for p in range(6000, 6005)]
+nodes = [node_data('http://localhost', p) for p in range(5000, 5005)]
 
 
 def request_transactions(node, nodes_count):
-    print(f"./transactions/{nodes_count}nodes/transactions{node}.txt")
     host = nodes[node]['host']
     port = nodes[node]['port']
-    print('hello')
     with open(f"./transactions/{nodes_count}nodes/transactions{node}.txt",
               'r') as f:
         for line in f:
@@ -34,16 +32,16 @@ def request_transactions(node, nodes_count):
 
 def main(nodes_count=5):
     threads = []
-    for i in range(5):
+    for i in range(nodes_count):
         threads.append(
             Thread(target=request_transactions, args=(
                 i,
                 nodes_count,
             )))
 
-    for i in range(5):
+    for i in range(nodes_count):
         threads[i].start()
-    for i in range(5):
+    for i in range(nodes_count):
         threads[i].join()
 
 
