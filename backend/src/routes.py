@@ -56,9 +56,8 @@ class RouteHandler:
         node_id = int(request.form['node_id'])
         amount = int(request.form['amount'])
 
-        return ('transaction created',
-                204) if TransactionUsecase(self.node_usecase.node).create(
-                    node_id, amount) else ('could not create transaction', 500)
+        return TransactionUsecase(self.node_usecase.node).create(
+            node_id, amount)
 
     def register_transaction_to_block(self):
         transaction = pickle.loads(request.get_data())

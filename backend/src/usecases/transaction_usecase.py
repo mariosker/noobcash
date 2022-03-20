@@ -2,6 +2,7 @@ from src.repository.node.node import Node
 from src.repository.transaction import Transaction
 from datetime import datetime
 import json
+from flask import jsonify
 
 
 class TransactionUsecase:
@@ -10,22 +11,28 @@ class TransactionUsecase:
         self.node = node
 
     def create(self, node_id: int, amount: int):
+        if node_id == self.node.node_info.id:
+            return jsonify({
+                'message':
+                    'Transaction failed. You cannot create transaction to yourself.'
+            }), 500
+
+        node = self.node.ring.get_node_by_id((node_id))
+
+        if not node:
+            return jsonify({
+                'message':
+                    'Transaction failed. Node with given ID does not exist in ring.'
+            }), 500
+
         try:
-            if node_id == self.node.node_info.id:
-                raise ValueError("Cannot create transaction to yourself")
-
-            node = self.node.ring.get_node_by_id((node_id))
-
-            if not node:
-                raise ValueError("Not a node")
-
-            self.node.create_transaction(node.public_key,
-                                         amount) if node else False
-            res = True
-        except Exception as err:
-            print(err)
-            res = False
-        return res
+            self.node.create_transaction(node.public_key, amount)
+            return jsonify({'message': 'Ok'}), 204
+        except Exception:
+            return jsonify({
+                'message':
+                    'Transaction failed. Not enough coins for the transaction or the signature is invalid.'
+            }), 500
 
     def get_transactions_from_last_block(self):
         last_block = self.node.blockchain.get_last_block()
