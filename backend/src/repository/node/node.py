@@ -143,7 +143,6 @@ class Node:
         ''')
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
-        config.logger.debug("I got the blockchain YIPkAY")
         self.blockchain = blockchain
 
     def handle_pending_transactions(self):
@@ -160,8 +159,6 @@ class Node:
                 self.lock.release()
                 continue
 
-            config.logger.debug("Making a new block")
-
             transactions = [
                 self.pending_transactions.pop()
                 for _ in range(config.BLOCK_CAPACITY)
@@ -171,17 +168,13 @@ class Node:
                                   self.blockchain.get_last_block().current_hash,
                                   transactions)
             try:
-                config.logger.debug("before mine")
                 self.mine_block(pending_block)
-                config.logger.debug("before register mined block")
                 self._register_mined_block(pending_block)
-                config.logger.debug("before broadcast block")
             except:
                 self.pending_transactions.extendleft(transactions)
             else:
                 Thread(target=self._broadcast_block,
                        args=(deepcopy(pending_block),)).start()
-                config.logger.debug("Making a new block: A OK")
             self.lock.release()
 
     def update_transactions(self, transaction: Transaction):
@@ -195,7 +188,6 @@ class Node:
         self.blockchain.add_block(block)
 
     def register_incoming_block(self, block: Block):
-        print("A BLOCK CAME WHAZZZZ UP")
         self.pause_transaction_handler.set()
         self.lock.acquire()
 
@@ -204,26 +196,19 @@ class Node:
                 raise ValueError("Block has wrong index")
 
             self.blockchain.add_block(block)
-            print("BLOCK ADDED YEAH")
             for transaction in block.transactions:
                 if transaction in self.pending_transactions:
-                    print("TRANSACTIONS REMOVED")
                     self.pending_transactions.remove(transaction)
                 else:
-                    print("UPDATING TRANSACTIONS")
                     self.update_transactions(transaction)
         except Exception as err:
             print(err)
-            print("CONFLICT OOPS")
             self.resolve_conflict()
 
         self.lock.release()
         self.pause_transaction_handler.clear()
 
     def _broadcast_block(self, block: Block):
-        print("DEN MPORW EGW ME TO ZORI", vars(block))
-        # for t in block.transactions:
-        #     print(vars(t))
         data_pickled = pickle.dumps(block)
         self.broadcast(config.BLOCK_REGISTER_URL, data_pickled)
 

@@ -40,5 +40,4 @@ class P2PNode(Node):
         return resp_content
 
     def set_ring(self, ring: Ring) -> None:
-        config.logger.debug("I got the ring YIPkAY")
         self.ring = ring

@@ -68,7 +68,6 @@ class BootstrapNode(Node):
     def _send_first_transactions(self):
         try:
             for node in self.ring:
-                print('Transactions sent')
                 if node == self.node_info:
                     continue
 
