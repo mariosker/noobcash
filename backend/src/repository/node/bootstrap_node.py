@@ -1,8 +1,8 @@
 import pickle
+from copy import deepcopy
 from threading import Thread
 
 from config import config
-from copy import deepcopy
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
 from src.repository.node.node import Node
@@ -34,7 +34,6 @@ class BootstrapNode(Node):
         [_, receiver_output] = genesis_transaction.transaction_outputs
         self.wallet.unspent_transactions.append(receiver_output)
         self.ring.update_balance(genesis_transaction)
-        config.logger.debug(self.ring)
         return Block(0, 1, [genesis_transaction])
 
     def register_node(self, node_info: RingNode):
@@ -48,9 +47,12 @@ class BootstrapNode(Node):
         """
         if len(self.ring) > config.MAX_USER_COUNT:
             raise ValueError('Cannot add more nodes to the ring')
+        for existing_node in self.ring:
+            if node_info.host == existing_node.host and node_info.port == existing_node.port:
+                raise ValueError('Node already exists in the ring')
         node_info.id = len(self.ring)
         self.ring.append(node_info)
-
+        config.logger.debug(node_info)
         if len(self.ring) == config.MAX_USER_COUNT:
             Thread(target=self._init_blockchain).start()
 
@@ -76,5 +78,4 @@ class BootstrapNode(Node):
 
                 self.create_transaction(node.public_key, config.NBC_PER_NODE)
         except ValueError as err:
-            config.logger.debug(err)
             raise ValueError('Could not create initial transactions')

@@ -109,7 +109,10 @@ class BootstrapRouteHandler(RouteHandler):
 
     def register_node(self):
         node_info = pickle.loads(request.get_data())
-        node_info = self.node_usecase.register_node(node_info)
+        try:
+            node_info = self.node_usecase.register_node(node_info)
+        except ValueError as err:
+            return (str(err), 400)
         return pickle.dumps(node_info)
 
 

@@ -1,11 +1,11 @@
 import pickle
 from collections import deque
-from threading import Thread, Event, Lock
+from copy import deepcopy
+from threading import Event, Lock, Thread
 from time import sleep
 
 import requests
 from config import config
-from copy import deepcopy
 from src.pkg.requests import poll_endpoint
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
@@ -75,12 +75,10 @@ class Node:
         transaction = Transaction(self.wallet.public_key, receiver_address,
                                   amount, transaction_inputs,
                                   self.wallet.private_key)
-        config.logger.debug("before validate")
         if not self.validate_transaction(transaction):
             self.wallet.unspent_transactions.extend(transactions_to_be_spent)
             raise ValueError('Transaction is invalid')
 
-        config.logger.debug("before broadcast")
         # TODO: EVERYDAY MALAKIA
 
         self.wallet.update_wallet(transaction)
@@ -92,7 +90,6 @@ class Node:
                args=(config.TRANSACTION_REGISTER_URL,
                      transaction_pickled)).start()
 
-        config.logger.debug("after broadcast")
 
     def register_transaction(self, transaction: Transaction):
         """Register a transaction that came from other nodes and queue it to be added in a block
@@ -103,7 +100,7 @@ class Node:
         Raises:
             ValueError: _description_
         """
-        print(vars(transaction))
+        # print(vars(transaction))
         if not self.validate_transaction(transaction):
             raise ValueError('Transaction not valid')
 
@@ -113,12 +110,10 @@ class Node:
 
     def validate_transaction(self, transaction: Transaction):
         if not transaction.verify_signature(transaction.sender_address):
-            config.logger.debug('cannot verify')
             return False
 
         for node in self.ring:
             if node.public_key == transaction.sender_address:
-                config.logger.debug('Found node')
                 if node.balance >= transaction.amount:
                     return True
 
@@ -146,7 +141,6 @@ class Node:
             block.current_hash = block.calculate_hash()
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
-        config.logger.debug("I got the blockchain YIPkAY")
         self.blockchain = blockchain
 
     def handle_pending_transactions(self):
