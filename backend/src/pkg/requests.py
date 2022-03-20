@@ -15,7 +15,7 @@ def poll_endpoint(url: str, request_type='post', data=None):
                     status_forcelist=[429, 500, 502, 503, 504])
     s.mount('http://', HTTPAdapter(max_retries=retries))
     if request_type == 'post':
-        r = s.post(url, data=data, timeout=100)
+        r = s.post(url, data=data, timeout=10000)
     else:
-        r = s.get(url, data=data, timeout=100)
+        r = s.get(url, data=data, timeout=10000)
     return r
