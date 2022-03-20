@@ -1,5 +1,6 @@
 import requests
 from config import config
+import json
 
 
 class RestAPI:
@@ -26,7 +27,7 @@ class RestAPI:
 
         if not resp.ok:
             raise ValueError('Cannot view last transactions')
-        return resp.content
+        return json.loads(resp.content)
 
     def get_balance(self):
         resp = requests.get(self.host + ':' + self.port + config.BALANCE_URL)

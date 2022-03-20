@@ -1,5 +1,7 @@
 from src.repository.node.node import Node
 from src.repository.transaction import Transaction
+from datetime import datetime
+import json
 
 
 class TransactionUsecase:
@@ -9,6 +11,9 @@ class TransactionUsecase:
 
     def create(self, node_id: int, amount: int):
         try:
+            if node_id == self.node.node_info.id:
+                raise ValueError("Cannot create transaction to yourself")
+
             node = self.node.ring.get_node_by_id((node_id))
 
             if not node:
@@ -28,10 +33,34 @@ class TransactionUsecase:
             return []
         transactions = last_block.get_transactions()
 
-        # TODO: FIX ME
-        aa = [vars(t) for t in transactions]
-        return "_-_".join([str(v) for v in aa])
-        # return str(vars(last_block))
+        transactions_sendable = []
+        for t in transactions:
+
+            if t.sender_address == '0':
+                sender_id = 'Genesis'
+            else:
+                sender = self.node.ring.get_node_by_address(t.sender_address)
+
+                if (sender == None):
+                    raise ValueError("Cannot find sender")
+
+                sender_id = sender.id
+
+            receiver = self.node.ring.get_node_by_address(t.receiver_address)
+
+            if (receiver == None):
+                raise ValueError("Cannot find receiver")
+
+            receiver_id = receiver.id
+
+            transactions_sendable.append({
+                'Sender': sender_id,
+                'Receiver': receiver_id,
+                'Amount': t.amount,
+                'Timestamp': datetime.fromtimestamp(t.timestamp).strftime("%c")
+            })
+
+        return json.dumps(transactions_sendable)
 
     def register(self, transaction: Transaction):
         return self.node.register_transaction(transaction)

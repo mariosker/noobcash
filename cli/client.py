@@ -44,7 +44,17 @@ class Noobcash(cmd.Cmd):
         'View the transactions of the last block of the blockchain'
         try:
             transactions = self.api.view_last_transactions()
-            print(transactions)
+            if len(transactions) != 0:
+                print("Transactions of last block:")
+                for t in transactions:
+                    print(f'''
+    Sender ID: {t['Sender']}
+    Receiver ID: {t['Receiver']}
+    Amount: {t['Amount']}
+    Creation Time: {t['Timestamp']}
+                    ''')
+            else:
+                print('Last block has no transactions')
         except Exception as err:
             print(err)
 

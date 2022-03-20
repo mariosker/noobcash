@@ -53,7 +53,7 @@ class Ring:
             return None
 
     def get_node_by_id(self, node_id: int) -> RingNode:
-        """Returns the node with the specific address
+        """Returns the node with the specific id
 
         Args:
             sender_address (str): The address of the node to return
@@ -63,6 +63,12 @@ class Ring:
         """
         try:
             return next(n for n in self.ring if node_id == n.id)
+        except StopIteration:
+            return None
+
+    def get_node_by_address(self, node_address: bytes) -> RingNode:
+        try:
+            return next(n for n in self.ring if node_address == n.public_key)
         except StopIteration:
             return None
 
