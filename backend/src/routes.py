@@ -3,6 +3,8 @@ import pickle
 from config import config
 from flask import Flask, request
 
+# from Flask import jsonify
+
 from src.usecases.blockchain_usecase import BlockChainUsecase
 from src.usecases.node.bootstrap_node_usecase import BootstrapNodeUsecase
 from src.usecases.node.node_usecase import NodeUsecase
@@ -51,15 +53,11 @@ class RouteHandler:
                      methods=['GET'])
 
     def create_transaction(self):
-        print("JUST GOT IN CREATE_TRANSACTION")
-
         node_id = int(request.form['node_id'])
         amount = int(request.form['amount'])
 
-        print("JUST BEFORE TRANSACTION USECASE")
-        return ('transaction created',
-                204) if TransactionUsecase(self.node_usecase.node).create(
-                    node_id, amount) else ('could not create transaction', 500)
+        return TransactionUsecase(self.node_usecase.node).create(
+            node_id, amount)
 
     def register_transaction_to_block(self):
         transaction = pickle.loads(request.get_data())
@@ -69,7 +67,8 @@ class RouteHandler:
 
     def register_incoming_block(self):
         block = pickle.loads(request.get_data())
-        return self.node_usecase.register_incoming_block(block)
+        self.node_usecase.register_incoming_block(block)
+        return ('Block registered', 204)
 
     def get_transactions_from_last_block(self):
         return TransactionUsecase(

@@ -1,5 +1,3 @@
-import pickle
-
 from src.repository.node.node import Node
 
 

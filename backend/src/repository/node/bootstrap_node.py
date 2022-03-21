@@ -28,13 +28,13 @@ class BootstrapNode(Node):
 
     def _create_genesis_block(self) -> Block:
         genesis_amount = config.NBC_PER_NODE * config.MAX_USER_COUNT
+        # TODO: try private_key = None
         genesis_transaction = Transaction('0', self.wallet.public_key,
                                           genesis_amount, [],
                                           self.wallet.private_key)
         [_, receiver_output] = genesis_transaction.transaction_outputs
         self.wallet.unspent_transactions.append(receiver_output)
-        self.ring.update_balance(genesis_transaction)
-        config.logger.debug(self.ring)
+        self.ring.update_unspent_transactions(genesis_transaction)
         return Block(0, 1, [genesis_transaction])
 
     def register_node(self, node_info: RingNode):
@@ -57,8 +57,6 @@ class BootstrapNode(Node):
         return node_info
 
     def _init_blockchain(self):
-        print("-----------------------------------------------------------")
-        print('DEBUGGGGGG', vars(self.ring), 'GGG', vars(self.blockchain))
         self._broadcast_current_state()
         self._send_first_transactions()
 
@@ -70,7 +68,6 @@ class BootstrapNode(Node):
     def _send_first_transactions(self):
         try:
             for node in self.ring:
-                print('Transactions sent')
                 if node == self.node_info:
                     continue
 

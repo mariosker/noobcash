@@ -30,15 +30,15 @@ class Blockchain:
         """Checks if the block is valid
 
         Args:
-            block (Block): A block instance to check if is valid
+            block (Block): A block instance to check if it is valid
 
         Returns:
             bool: True if valid else False
         """
         prev_block = self.chain[block.index - 1]
+
         has_valid_hash = (block.current_hash == block.calculate_hash())
-        points_to_prev_block = (
-            block.previous_hash == prev_block.calculate_hash())
+        points_to_prev_block = (block.previous_hash == prev_block.current_hash)
 
         return has_valid_hash and points_to_prev_block
 

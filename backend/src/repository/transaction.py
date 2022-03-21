@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import time
 import uuid
-from dataclasses import dataclass
 
 from src.pkg import crypto
 
@@ -109,3 +108,9 @@ class Transaction:
 
     def __lt__(self, other: Transaction):
         return self.timestamp < other.timestamp
+
+    def __eq__(self, other: Transaction):
+        if isinstance(other, self.__class__):
+            return self.transaction_id == other.transaction_id
+        else:
+            return False
