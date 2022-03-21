@@ -10,6 +10,8 @@ from functools import partial
 
 LIMIT_TRANSACTIONS = None
 
+random.seed(42)
+
 node_data = lambda host, port: {'host': host, 'port': port}
 nodes = [node_data('http://localhost', p) for p in range(5000, 5005)]
 

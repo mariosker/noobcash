@@ -43,7 +43,11 @@ if __name__ == "__main__":
     config.MAX_USER_COUNT = args.nodes if args.nodes else config.MAX_USER_COUNT
     config.PORT = args.port if args.port else config.PORT
     print(f'\nHost\'s IP: {config.HOST}, Host\'s Port: {config.PORT}')
-    print(f'Boostrap\'s IP: {config.BOOTSTRAP_HOST}, Boostrap\'s Port: {config.BOOTSTRAP_PORT}')
-    print(f'Nodes in the network: {config.MAX_USER_COUNT}, Block\'s Capacity: {config.BLOCK_CAPACITY}, Mining Difficulty: {config.MINING_DIFFICULTY}\n')
-
+    print(
+        f'Boostrap\'s IP: {config.BOOTSTRAP_HOST}, Boostrap\'s Port: {config.BOOTSTRAP_PORT}'
+    )
+    print(
+        f'Nodes in the network: {config.MAX_USER_COUNT}, Block\'s Capacity: {config.BLOCK_CAPACITY}, Mining Difficulty: {config.MINING_DIFFICULTY}\n'
+    )
+    config.set_metric_logger()
     main()

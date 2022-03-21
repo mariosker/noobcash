@@ -40,6 +40,7 @@ class Node:
         Thread(target=self.handle_pending_transactions).start()
 
     def broadcast(self, URL: str, obj, requests_function=requests.post):
+
         def make_request(url):
             if requests_function == requests.post:
                 return poll_endpoint(url, request_type='post', data=obj)
@@ -255,6 +256,7 @@ class Node:
         response = self._request_ring_and_transactions_from_node(
             max_response['id'])
 
+        config.metrics_logger.info(time.time())
         self.blockchain = deepcopy(max_response['blockchain'])
         self.ring = deepcopy(response['ring'])
         self.pending_transactions = deepcopy(response['transactions'])

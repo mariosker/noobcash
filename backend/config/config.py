@@ -8,6 +8,7 @@ else:
     logger.basicConfig(level=logging.WARN)
 
 logger.basicConfig(level=logging.DEBUG)
+
 IS_LOCAL = True
 HOST = os.getenv('HOST', 'localhost')
 PORT = os.getenv('PORT', '5000')
@@ -35,3 +36,15 @@ NODE_BLOCKCHAIN_URL = '/node/blockchain'
 NODE_RING_AND_TRANSACTION = '/node/ringandtransaction'
 
 BLOCK_REGISTER_URL = '/block/register'
+
+metrics_logger = None
+
+
+def set_metric_logger():
+    global metrics_logger
+    metrics_logger = logging.getLogger("Metrics")
+    fh = logging.FileHandler(
+        f"logfile-{PORT}-{MAX_USER_COUNT}-{BLOCK_CAPACITY}-{MINING_DIFFICULTY}.log"
+    )
+    fh.setLevel(logging.INFO)
+    metrics_logger.addHandler(fh)

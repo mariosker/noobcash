@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import List
 
 from src.repository.block import Block
+from config import config
+import time
 
 
 class Blockchain:
@@ -22,6 +24,7 @@ class Blockchain:
             ValueError: Block is not valid
         """
         if self.validate_block(block):
+            config.metrics_logger.info(time.time())
             self.chain.append(block)
         else:
             raise ValueError("Block is not valid")
