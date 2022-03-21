@@ -1,12 +1,15 @@
+import concurrent.futures
+from http.client import responses
 import pickle
-from collections import deque
-from threading import Thread, Event, Lock
-from time import sleep
 import time
+from collections import deque
+from copy import deepcopy
+from threading import Event, Lock, Thread
+from time import sleep
+from urllib import response
 
 import requests
 from config import config
-from copy import deepcopy
 from src.pkg.requests import poll_endpoint
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
@@ -37,24 +40,22 @@ class Node:
         Thread(target=self.handle_pending_transactions).start()
 
     def broadcast(self, URL: str, obj, requests_function=requests.post):
-        responses = []
-        for node in self.ring:
-            if node.public_key == self.wallet.public_key:
-                continue
+        def make_request(url):
             if requests_function == requests.post:
-                resp = poll_endpoint(f'http://{node.host}:{node.port}{URL}',
-                                     request_type='post',
-                                     data=obj)
-
-                responses.append(resp)
+                return poll_endpoint(url, request_type='post', data=obj)
             else:
-                resp = poll_endpoint(f'http://{node.host}:{node.port}{URL}',
-                                     request_type='get',
-                                     data=obj)
+                return poll_endpoint(url, request_type='get', data=obj)
 
-                responses.append(resp)
+        url_list = [
+            f'http://{node.host}:{node.port}{URL}' for node in self.ring
+            if node.public_key != self.wallet.public_key
+        ]
 
-        return responses
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            responses = [executor.submit(make_request, url) for url in url_list]
+            concurrent.futures.wait(responses)
+
+        return [r.result() for r in responses]
 
     def create_transaction(self, receiver_address: bytes, amount: int):
         self.transaction_lock.acquire()
