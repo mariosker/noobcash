@@ -14,7 +14,7 @@ def main():
     else:
         P2PRouteHandler(app)
 
-    app.run(host=config.HOST, port=config.PORT, use_reloader=False)
+    app.run(host=config.HOST, port=config.PORT)
 
 
 if __name__ == "__main__":

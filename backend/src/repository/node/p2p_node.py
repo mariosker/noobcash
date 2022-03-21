@@ -1,7 +1,8 @@
 import pickle
-from copy import deepcopy
 
+import requests
 from config import config
+from copy import deepcopy
 from src.pkg.requests import poll_endpoint
 from src.repository.node.node import Node
 from src.repository.ring import Ring, RingNode
@@ -39,4 +40,5 @@ class P2PNode(Node):
         return resp_content
 
     def set_ring(self, ring: Ring) -> None:
+        config.logger.debug("I got the ring YIPkAY")
         self.ring = ring
