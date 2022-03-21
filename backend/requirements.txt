@@ -2,3 +2,4 @@ Flask
 flask-compress
 cryptography
 requests
+prometheus_client

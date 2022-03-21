@@ -1,5 +1,4 @@
 import concurrent.futures
-from http.client import responses
 import pickle
 import time
 from collections import deque
@@ -10,6 +9,7 @@ from urllib import response
 
 import requests
 from config import config
+from src.metrics.metrics import block_time
 from src.pkg.requests import poll_endpoint
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
@@ -169,8 +169,10 @@ class Node:
                                   self.blockchain.get_last_block().current_hash,
                                   transactions)
             try:
+                start_time = time.time()
                 self.mine_block(pending_block)
                 self._register_mined_block(pending_block)
+                block_time.observe(time.time()-start_time)
             except:
                 self.pending_transactions.extendleft(transactions)
             else:

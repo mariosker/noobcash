@@ -9,15 +9,15 @@ services:
     environment:
       IS_BOOTSTRAP: "true"
       HOST: 192.168.1.10
-      PORT: 1000
+      PORT: 5000
       BOOTSTRAP_HOST: 192.168.1.10
-      BOOTSTRAP_PORT: 1000
-      MAX_USER_COUNT: 3
+      BOOTSTRAP_PORT: 5000
+      MAX_USER_COUNT: 5
       BLOCK_CAPACITY: 2
       MINING_DIFFICULTY: 4
       FLASK_ENV: development
     ports:
-      - "1000:1000/tcp"
+      - "5000:5000/tcp"
     networks:
       noobchain:
         ipv4_address: 192.168.1.10
@@ -29,41 +29,83 @@ services:
     environment:
       IS_BOOTSTRAP: null
       HOST: 192.168.1.20
-      PORT: 2000
+      PORT: 5001
       BOOTSTRAP_HOST: 192.168.1.10
-      BOOTSTRAP_PORT: 1000
-      MAX_USER_COUNT: 3
+      BOOTSTRAP_PORT: 5000
+      MAX_USER_COUNT: 5
       BLOCK_CAPACITY: 2
       MINING_DIFFICULTY: 4
       FLASK_ENV: development
     ports:
-      - "2000:2000/tcp"
+      - "5001:5001/tcp"
     depends_on:
       - bootstrap-node
     networks:
       noobchain:
         ipv4_address: 192.168.1.20
-  # node-2:
-  #   image: app
-  #   build:
-  #     context: ./../
-  #     dockerfile: infra/Dockerfile
-  #   environment:
-  #     IS_BOOTSTRAP: null
-  #     HOST: 192.168.1.30
-  #     PORT: 3000
-  #     BOOTSTRAP_HOST: 192.168.1.10
-  #     BOOTSTRAP_PORT: 1000
-  #     MAX_USER_COUNT: 3
-  #     BLOCK_CAPACITY: 2
-  #     MINING_DIFFICULTY: 4
-  #   ports:
-  #     - "3000:3000/tcp"
-  #   depends_on:
-  #     - bootstrap-node
-  #   networks:
-  #     noobchain:
-  #       ipv4_address: 192.168.1.30
+  node-2:
+    image: app
+    build:
+      context: ./../
+      dockerfile: infra/Dockerfile
+    environment:
+      IS_BOOTSTRAP: null
+      HOST: 192.168.1.30
+      PORT: 5002
+      BOOTSTRAP_HOST: 192.168.1.10
+      BOOTSTRAP_PORT: 5000
+      MAX_USER_COUNT: 5
+      BLOCK_CAPACITY: 2
+      MINING_DIFFICULTY: 4
+    ports:
+      - "5002:5002/tcp"
+    depends_on:
+      - bootstrap-node
+    networks:
+      noobchain:
+        ipv4_address: 192.168.1.30
+  node-3:
+    image: app
+    build:
+      context: ./../
+      dockerfile: infra/Dockerfile
+    environment:
+      IS_BOOTSTRAP: null
+      HOST: 192.168.1.40
+      PORT: 5003
+      BOOTSTRAP_HOST: 192.168.1.10
+      BOOTSTRAP_PORT: 5000
+      MAX_USER_COUNT: 5
+      BLOCK_CAPACITY: 2
+      MINING_DIFFICULTY: 4
+    ports:
+      - "5003:5003/tcp"
+    depends_on:
+      - bootstrap-node
+    networks:
+      noobchain:
+        ipv4_address: 192.168.1.40
+  node-4:
+    image: app
+    build:
+      context: ./../
+      dockerfile: infra/Dockerfile
+    environment:
+      IS_BOOTSTRAP: null
+      HOST: 192.168.1.50
+      PORT: 5004
+      BOOTSTRAP_HOST: 192.168.1.10
+      BOOTSTRAP_PORT: 5000
+      MAX_USER_COUNT: 5
+      BLOCK_CAPACITY: 2
+      MINING_DIFFICULTY: 4
+    ports:
+      - "5004:5004/tcp"
+    depends_on:
+      - bootstrap-node
+    networks:
+      noobchain:
+        ipv4_address: 192.168.1.50
 networks:
   noobchain:
     driver: bridge

@@ -2,12 +2,12 @@ import pickle
 
 from config import config
 from flask import Flask, request
+from prometheus_client import make_wsgi_app
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
-# from Flask import jsonify
-
+from src.metrics.metrics import transaction_counter
 from src.usecases.blockchain_usecase import BlockChainUsecase
 from src.usecases.node.bootstrap_node_usecase import BootstrapNodeUsecase
-from src.usecases.node.node_usecase import NodeUsecase
 from src.usecases.node.p2p_node_usecase import P2PNodeUsecase
 from src.usecases.transaction_usecase import TransactionUsecase
 from src.usecases.wallet_usecase import WalletUsecase
@@ -16,6 +16,10 @@ from src.usecases.wallet_usecase import WalletUsecase
 class RouteHandler:
 
     def __init__(self, app: Flask) -> None:
+        # Add prometheus wsgi middleware to route /metrics requests
+        app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
+            '/metrics': make_wsgi_app()
+        })
         self.app = app
         self.node_usecase = None
 
@@ -55,7 +59,7 @@ class RouteHandler:
     def create_transaction(self):
         node_id = int(request.form['node_id'])
         amount = int(request.form['amount'])
-
+        transaction_counter.inc(1)
         return TransactionUsecase(self.node_usecase.node).create(
             node_id, amount)
 

@@ -14,7 +14,7 @@ def main():
     else:
         P2PRouteHandler(app)
 
-    app.run(host=config.HOST, port=config.PORT)
+    app.run(host=config.HOST, port=config.PORT, use_reloader=False)
 
 
 if __name__ == "__main__":
@@ -46,4 +46,5 @@ if __name__ == "__main__":
     print(f'Boostrap\'s IP: {config.BOOTSTRAP_HOST}, Boostrap\'s Port: {config.BOOTSTRAP_PORT}')
     print(f'Nodes in the network: {config.MAX_USER_COUNT}, Block\'s Capacity: {config.BLOCK_CAPACITY}, Mining Difficulty: {config.MINING_DIFFICULTY}\n')
 
+    config.logger.getLogger('urllib3').setLevel(config.logger.WARNING)
     main()
