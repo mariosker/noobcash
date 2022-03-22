@@ -20,6 +20,6 @@ class NodeUsecase():
 
     def get_ring_and_transactions(self):
         return {
-            'ring': self.node.ring(),
+            'ring': self.node.ring,
             'transactions': self.node.pending_transactions
         }
