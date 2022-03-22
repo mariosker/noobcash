@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import List
 
 from src.repository.block import Block
-
+import requests
+from config import config
+import time
 
 class Blockchain:
     """ Contains the blocks of the blockchain
@@ -22,6 +24,7 @@ class Blockchain:
             ValueError: Block is not valid
         """
         if self.validate_block(block):
+            requests.post(f'http://{config.LOG_HOST}:{config.LOG_PORT}/log/add_block/{int(config.PORT)}/{time.time()}')
             self.chain.append(block)
         else:
             raise ValueError("Block is not valid")

@@ -35,3 +35,6 @@ NODE_BLOCKCHAIN_URL = '/node/blockchain'
 NODE_RING_AND_TRANSACTION = '/node/ringandtransaction'
 
 BLOCK_REGISTER_URL = '/block/register'
+
+LOG_HOST = 'localhost'
+LOG_PORT = '7000'
