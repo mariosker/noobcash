@@ -1,15 +1,17 @@
 import concurrent.futures
+import inspect
 import pickle
 import time
 from collections import deque
 from copy import deepcopy
 from threading import Event, Lock, Thread
 from time import sleep
-from urllib import response
 
 import requests
 from config import config
-from src.metrics.metrics import block_time
+from src.metrics.metrics import (block_time, transaction_counter,
+                                 transaction_counter_end,
+                                 transaction_counter_start)
 from src.pkg.requests import poll_endpoint
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
@@ -17,6 +19,7 @@ from src.repository.ring import Ring, RingNode
 from src.repository.transaction import Transaction, TransactionInput
 from src.repository.wallet import Wallet
 
+flag = True
 
 class Node:
     """User using the blockchain
@@ -58,6 +61,13 @@ class Node:
         return [r.result() for r in responses]
 
     def create_transaction(self, receiver_address: bytes, amount: int):
+        global flag
+        curframe = inspect.currentframe()
+        calframe = inspect.getouterframes(curframe, 2)
+        if calframe[1][3] != "_send_first_transactions" and flag:
+            flag = False
+            transaction_counter_start.set(time.time())
+
         self.transaction_lock.acquire()
         transaction_inputs = []
         transactions_to_be_spent = deque()
@@ -120,6 +130,8 @@ class Node:
             if node.public_key == transaction.sender_address:
                 config.logger.debug('Found node')
                 if node.balance >= transaction.amount:
+                    transaction_counter.inc(1)
+                    transaction_counter_end.set(time.time())
                     return True
 
         return False
@@ -164,12 +176,11 @@ class Node:
                 self.pending_transactions.pop()
                 for _ in range(config.BLOCK_CAPACITY)
             ]
-
+            start_time = time.time()
             pending_block = Block(len(self.blockchain),
                                   self.blockchain.get_last_block().current_hash,
                                   transactions)
             try:
-                start_time = time.time()
                 self.mine_block(pending_block)
                 self._register_mined_block(pending_block)
                 block_time.observe(time.time()-start_time)

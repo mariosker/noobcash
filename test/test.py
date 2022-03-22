@@ -1,10 +1,9 @@
 import argparse
-import concurrent.futures
-import json
 import os
 import random
 import time
 from concurrent.futures import thread
+from datetime import datetime
 from functools import partial
 from threading import Thread
 
@@ -31,9 +30,10 @@ def request_transactions(node, nodes_count):
             data = {'node_id': id, 'amount': amount}
             print(node, data)
             requests.post(f'{host}:{port}/transactions', data=data)
-            # time.sleep(random.random() * 10)
+            time.sleep(random.random() * 10)
 
 def get_metrics_output(nodes_count):
+    metrics = {}
     for node in range(nodes_count):
         host = nodes[node]['host']
         port = nodes[node]['port']
@@ -41,12 +41,17 @@ def get_metrics_output(nodes_count):
         data = resp.content.decode().split('\n')
         for line in data:
             # script kid cause prometheus sucks ¯\_(ツ)_/¯
-            if 'block_latency_sum' in line:
-                print("id:", node)
-                print("Mean time to add a new block to the blockchain:", line.split(' ')[1])
-            if '#' not in line and 'transaction_counter_total' in line:
-                print("id:", node)
-                print("Total transactions made:", line.split(' ')[1])
+            if '#' not in line and line:
+                name, val = line.split(' ')
+                metrics[name] = val
+        start = float(metrics['transaction_counter_start'])
+        end = float(metrics['transaction_counter_end'])
+        duration =  end - start
+        print('node:', node, float(metrics['block_latency_count']) / float(metrics['block_latency_sum']))
+        # TODO: fix duration to minutes
+        print(start, end, duration)
+        if duration:
+            print(float(metrics['transaction_counter_total'])/duration)
 
 def main(nodes_count=5):
     threads = []
