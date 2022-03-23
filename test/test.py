@@ -55,20 +55,20 @@ def get_metrics_output(nodes_count):
         max(node_metrics, key=lambda x: float(x['last_mined_block_timestamp']))
         ['last_mined_block_timestamp'])
 
-    # TODO: fix duration to minutes
     duration = end - start
 
     total_transactions_count = sum(
         [float(x['transaction_counter_total']) for x in node_metrics])
 
     if duration:
-        print('Throughput: ', total_transactions_count / duration)
+        print('Throughput:', total_transactions_count / duration)
 
-    # for node in range(nodes_count):
-    #     print(
-    #         'node:', node,
-    #         float(metrics['block_latency_count']) /
-    #         float(metrics['block_latency_sum']))
+    total_block_latency_sum = sum(
+        [float(x['block_latency_sum']) for x in node_metrics])
+    total_block_latency_count = sum(
+        [float(x['block_latency_count']) for x in node_metrics])
+
+    print('Block Time:', total_block_latency_sum / total_block_latency_count)
 
 
 def main(nodes_count=5):
