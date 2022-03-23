@@ -10,8 +10,8 @@ from time import sleep
 import requests
 from config import config
 from src.metrics.metrics import (block_time, transaction_counter,
-                                 transaction_counter_end,
-                                 transaction_counter_start)
+                                 last_mined_block_timestamp,
+                                 first_transaction_timestamp)
 from src.pkg.requests import poll_endpoint
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
@@ -20,6 +20,7 @@ from src.repository.transaction import Transaction, TransactionInput
 from src.repository.wallet import Wallet
 
 flag = True
+
 
 class Node:
     """User using the blockchain
@@ -43,6 +44,7 @@ class Node:
         Thread(target=self.handle_pending_transactions).start()
 
     def broadcast(self, URL: str, obj, requests_function=requests.post):
+
         def make_request(url):
             if requests_function == requests.post:
                 return poll_endpoint(url, request_type='post', data=obj)
@@ -66,7 +68,7 @@ class Node:
         calframe = inspect.getouterframes(curframe, 2)
         if calframe[1][3] != "_send_first_transactions" and flag:
             flag = False
-            transaction_counter_start.set(time.time())
+            first_transaction_timestamp.set(time.time())
 
         self.transaction_lock.acquire()
         transaction_inputs = []
@@ -93,6 +95,9 @@ class Node:
             self.wallet.unspent_transactions.extend(transactions_to_be_spent)
             self.transaction_lock.release()
             raise ValueError('Transaction is invalid')
+
+        if calframe[1][3] != "_send_first_transactions":
+            transaction_counter.inc(1)
 
         self.wallet.update_wallet(transaction)
         self.ring.update_unspent_transactions(transaction)
@@ -130,8 +135,6 @@ class Node:
             if node.public_key == transaction.sender_address:
                 config.logger.debug('Found node')
                 if node.balance >= transaction.amount:
-                    transaction_counter.inc(1)
-                    transaction_counter_end.set(time.time())
                     return True
 
         return False
@@ -154,6 +157,7 @@ class Node:
         |      MINED       |
         |------------------|
         ''')
+        last_mined_block_timestamp.set(time.time())
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
         self.blockchain = blockchain
@@ -183,7 +187,7 @@ class Node:
             try:
                 self.mine_block(pending_block)
                 self._register_mined_block(pending_block)
-                block_time.observe(time.time()-start_time)
+                block_time.observe(time.time() - start_time)
             except:
                 self.pending_transactions.extendleft(transactions)
             else:

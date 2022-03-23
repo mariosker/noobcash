@@ -32,26 +32,44 @@ def request_transactions(node, nodes_count):
             requests.post(f'{host}:{port}/transactions', data=data)
             time.sleep(random.random() * 10)
 
+
 def get_metrics_output(nodes_count):
-    metrics = {}
+
+    node_metrics = []
     for node in range(nodes_count):
+        metrics = {}
         host = nodes[node]['host']
         port = nodes[node]['port']
         resp = requests.get(f'{host}:{port}/metrics')
         data = resp.content.decode().split('\n')
         for line in data:
-            # script kid cause prometheus sucks ¯\_(ツ)_/¯
             if '#' not in line and line:
                 name, val = line.split(' ')
                 metrics[name] = val
-        start = float(metrics['transaction_counter_start'])
-        end = float(metrics['transaction_counter_end'])
-        duration =  end - start
-        print('node:', node, float(metrics['block_latency_count']) / float(metrics['block_latency_sum']))
-        # TODO: fix duration to minutes
-        print(start, end, duration)
-        if duration:
-            print(float(metrics['transaction_counter_total'])/duration)
+        node_metrics.append(metrics)
+
+    start = float(
+        min(node_metrics, key=lambda x: float(x['first_transaction_timestamp']))
+        ['first_transaction_timestamp'])
+    end = float(
+        max(node_metrics, key=lambda x: float(x['last_mined_block_timestamp']))
+        ['last_mined_block_timestamp'])
+
+    # TODO: fix duration to minutes
+    duration = end - start
+
+    total_transactions_count = sum(
+        [float(x['transaction_counter_total']) for x in node_metrics])
+
+    if duration:
+        print('Throughput: ', total_transactions_count / duration)
+
+    # for node in range(nodes_count):
+    #     print(
+    #         'node:', node,
+    #         float(metrics['block_latency_count']) /
+    #         float(metrics['block_latency_sum']))
+
 
 def main(nodes_count=5):
     threads = []
@@ -66,7 +84,9 @@ def main(nodes_count=5):
         threads[i].start()
     for i in range(nodes_count):
         threads[i].join()
+
     get_metrics_output(nodes_count)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Test Noobcash backend')

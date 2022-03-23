@@ -9,10 +9,10 @@ else:
 
 logger.basicConfig(level=logging.DEBUG)
 IS_LOCAL = True
-HOST = os.getenv('HOST', 'localhost')
+HOST = os.getenv('HOST', '127.0.0.1')
 PORT = os.getenv('PORT', '5000')
 IS_BOOTSRAP = bool(os.getenv('IS_BOOTSTRAP'))
-BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST', 'localhost')
+BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST', '127.0.0.1')
 BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT', '5000')
 
 MAX_USER_COUNT = int(os.getenv('MAX_USER_COUNT', '10'))
