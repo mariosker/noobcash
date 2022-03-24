@@ -44,6 +44,13 @@ class Node:
         Thread(target=self.handle_pending_transactions).start()
 
     def broadcast(self, URL: str, obj, requests_function=requests.post):
+        """Broadcast the given object to the given url with the given request function
+
+        Args:
+            URL (str): the url to which we want to broadcast 
+            obj (_type_): the object we want to broadcast
+            requests_function (_type_, optional): the function used for the request. Defaults to requests.post.
+        """
 
         def make_request(url):
             if requests_function == requests.post:
@@ -63,6 +70,16 @@ class Node:
         return [r.result() for r in responses]
 
     def create_transaction(self, receiver_address: bytes, amount: int):
+        """Create a transaction of amount noobcash coins to the given receiver address
+
+        Args:
+            receiver_address (bytes): the address of the receiver
+            amount (int): the amount of noobcash coins
+
+        Raises:
+            ValueError: You do not have enough coins to make the transaction
+            ValueError: Transaction is invalid
+        """
         global flag
         curframe = inspect.currentframe()
         calframe = inspect.getouterframes(curframe, 2)
@@ -114,10 +131,10 @@ class Node:
         """Register a transaction that came from other nodes and queue it to be added in a block
 
         Args:
-            transaction (Transaction): _description_
+            transaction (Transaction): the transaction to be registered
 
         Raises:
-            ValueError: _description_
+            ValueError: Transaction not valid
         """
         if not self.validate_transaction(transaction):
             raise ValueError('Transaction not valid')
@@ -127,6 +144,14 @@ class Node:
         return True
 
     def validate_transaction(self, transaction: Transaction):
+        """Checks if a transaction is valid
+
+        Args:
+            transaction (Transaction): the transaction that we want to check
+
+        Returns:
+            bool: True if transaction is valid, else False
+        """
         if not transaction.verify_signature(transaction.sender_address):
             config.logger.debug('cannot verify')
             return False
@@ -141,6 +166,12 @@ class Node:
 
     def mine_block(self, block: Block):
         """Mines the block until it begins with MINING_DIFFICULTY zeroes
+
+        Args:
+            block (Block): the block to mine
+
+        Raises:
+            Exception: Mining interrupted by event
         """
         while not block.current_hash.startswith('0' * config.MINING_DIFFICULTY):
             if self.pause_transaction_handler.is_set():
@@ -149,7 +180,7 @@ class Node:
                 |  STOPPED MINING  |
                 |------------------|
                 ''')
-                raise Exception("Mining interrupted by event.")
+                raise Exception("Mining interrupted by event")
             block.nonce += 1
             block.current_hash = block.calculate_hash()
         config.logger.debug('''
@@ -160,9 +191,17 @@ class Node:
         last_mined_block_timestamp.set(time.time())
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
+        """Sets the current blockchain to the given blockchain
+
+        Args:
+            blockchain (Blockchain): the blockchain we want to set
+        """
         self.blockchain = blockchain
 
     def handle_pending_transactions(self):
+        """Checks to see if maximum block capacity is reached, and then creates the block, mines it,
+        adds it to the blockchain and broadcasts it to the whole network
+        """
         while True:
             sleep(0.1)
             if self.pause_transaction_handler.is_set():
@@ -196,6 +235,11 @@ class Node:
             self.lock.release()
 
     def update_transactions(self, transaction: Transaction):
+        """Update wallet UTXOs and ring
+
+        Args:
+            transaction (Transaction): the transaction with which we update the wallet UTXOs and the ring
+        """
         try:
             self.wallet.update_wallet(transaction)
         except Exception as err:
@@ -203,9 +247,23 @@ class Node:
         self.ring.update_unspent_transactions(transaction)
 
     def _register_mined_block(self, block: Block):
+        """Registers the mined block to the blockchain
+
+        Args:
+            block (Block): the mined block we want to add to the blockchain
+        """
         self.blockchain.add_block(block)
 
     def register_incoming_block(self, block: Block):
+        """Registers the incoming block to the blockchain and handles the transactions
+        in the pending transactions queue
+
+        Args:
+            block (Block): the block to add to the blockchain
+
+        Raises:
+            ValueError: Block has wrong index
+        """
         self.pause_transaction_handler.set()
         self.lock.acquire()
 
@@ -227,17 +285,35 @@ class Node:
         self.pause_transaction_handler.clear()
 
     def _broadcast_block(self, block: Block):
+        """Broadcasts the given block to the whole network
+
+        Args:
+            block (Block): the block to be broadcasted to the whole network
+        """
         data_pickled = pickle.dumps(block)
         self.broadcast(config.BLOCK_REGISTER_URL, data_pickled)
 
     def _request_blockchain(self):
+        """Requests the blockchain of all the other nodes in the network
+
+        Returns:
+            list: list of the responses content
+        """
         responses = self.broadcast(config.NODE_BLOCKCHAIN_URL,
                                    None,
                                    requests_function=requests.get)
-        print(responses)
+        # print(responses)
         return [pickle.loads(r.content) for r in responses]
 
     def _request_ring_and_transactions_from_node(self, id):
+        """Requests ring and pending transactions of the node with the given id
+
+        Args:
+            id (_type_): the id of the node of which we want to get the ring and pending transactions
+
+        Returns:
+            response: response with the requested content
+        """
         response = None
         for node in self.ring:
             if node.id == id:
@@ -251,6 +327,9 @@ class Node:
         return response
 
     def resolve_conflict(self):
+        """Requests the blockchain of all the other nodes, and if we do not have the longest valid blockchain,
+        gets the blockchain, ring and pending transactions of the node that has it.
+        """
         # NOTE: maybe needs threading
         responses = self._request_blockchain()
         responses.sort(key=lambda x: Blockchain(x['blockchain']), reverse=True)
