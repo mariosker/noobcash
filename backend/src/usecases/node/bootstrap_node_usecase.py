@@ -10,4 +10,12 @@ class BootstrapNodeUsecase(NodeUsecase):
         self.node = BootstrapNode()
 
     def register_node(self, node_info: RingNode):
+        """Register the node in the Ring
+
+        Args:
+            node_info (RingNode): node to be inserted
+
+        Returns:
+            RingNode: The updated node
+        """
         return self.node.register_node(node_info)

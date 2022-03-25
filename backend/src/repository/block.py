@@ -39,4 +39,9 @@ class Block:
         return crypto.hash_to_str(to_hash)
 
     def get_transactions(self) -> List[Transaction]:
+        """Return the transactions of the block
+
+        Returns:
+            List[Transaction]: List with the transactions
+        """
         return self.transactions

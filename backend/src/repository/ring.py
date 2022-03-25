@@ -67,16 +67,34 @@ class Ring:
             return None
 
     def get_node_by_address(self, node_address: bytes) -> RingNode:
+        """Return the node with the given address
+
+        Args:
+            node_address (bytes): The public key of the node
+
+        Returns:
+            RingNode: The node with the given address
+        """
         try:
             return next(n for n in self.ring if node_address == n.public_key)
         except StopIteration:
             return None
 
     def __iter__(self):
+        """Iteration of the nodes in the ring
+
+        Yields:
+            RingNode: Node in the ring
+        """
         for each in self.ring:
             yield each
 
     def update_unspent_transactions(self, transaction: Transaction):
+        """Updates the transactions and balance on the nodes participating in the transaction
+
+        Args:
+            transaction (Transaction): The transaction to update the utxos and balance
+        """
         for node in self.ring:
             if node.public_key == transaction.sender_address:
                 node.balance -= transaction.amount

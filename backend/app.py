@@ -7,6 +7,8 @@ from src.routes import BootstrapRouteHandler, P2PRouteHandler
 
 
 def main():
+    """Main app to run the server using configuration from args or config
+    """
     app = Flask(__name__)
 
     if config.IS_BOOTSRAP:

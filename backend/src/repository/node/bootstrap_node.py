@@ -27,6 +27,11 @@ class BootstrapNode(Node):
         self.blockchain = Blockchain([self.genesis_block])
 
     def _create_genesis_block(self) -> Block:
+        """Create genesis block
+
+        Returns:
+            Block: The genesis block
+        """
         genesis_amount = config.NBC_PER_NODE * config.MAX_USER_COUNT
         # TODO: try private_key = None
         genesis_transaction = Transaction('0', self.wallet.public_key,
@@ -38,13 +43,13 @@ class BootstrapNode(Node):
         return Block(0, 1, [genesis_transaction])
 
     def register_node(self, node_info: RingNode):
-        """ As a bootstrap add the node to the ring and update it's id
+        """ Add the node to the ring and update it's id. Then send it
 
         Args:
             node_info (RingNode): _description_
 
         Returns:
-            _type_: _description_
+            RingNode: The update node
         """
         if len(self.ring) > config.MAX_USER_COUNT:
             raise ValueError('Cannot add more nodes to the ring')
@@ -57,15 +62,24 @@ class BootstrapNode(Node):
         return node_info
 
     def _init_blockchain(self):
+        """after all nodes register start initialization
+        """
         self._broadcast_current_state()
         self._send_first_transactions()
 
     def _broadcast_current_state(self):
+        """Broadcasts to all nodes the ring and the blockchain
+        """
         data = {'ring': self.ring, 'blockchain': self.blockchain}
         data_pickled = pickle.dumps(data)
         self.broadcast(config.NODE_SET_INFO_URL, data_pickled)
 
     def _send_first_transactions(self):
+        """Once all nodes connect to the noobchain the bootstrap node sends NBC_PER_NODE NBC to them
+
+        Raises:
+            ValueError: Error if something bad happens
+        """
         try:
             for node in self.ring:
                 if node == self.node_info:

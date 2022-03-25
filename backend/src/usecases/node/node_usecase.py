@@ -19,6 +19,11 @@ class NodeUsecase():
         self.node.register_incoming_block(block)
 
     def get_ring_and_transactions(self):
+        """Return ring and pending transactions of the node
+
+        Returns:
+            Dict(Ring, List[Transaction]): A dict containing the ring and the transactions
+        """
         return {
             'ring': self.node.ring(),
             'transactions': self.node.pending_transactions

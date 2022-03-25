@@ -70,4 +70,9 @@ class TransactionUsecase:
         return json.dumps(transactions_sendable)
 
     def register(self, transaction: Transaction):
+        """Register the transaction in the blockchain
+
+        Args:
+            transaction (Transaction): the transaction to be added
+        """
         return self.node.register_transaction(transaction)

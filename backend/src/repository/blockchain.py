@@ -54,6 +54,11 @@ class Blockchain:
         return False
 
     def __len__(self):
+        """length of the blockchain
+
+        Returns:
+            int: length of the blockchain object
+        """
         return len(self.chain)
 
     def get_last_block(self) -> Block:
@@ -75,4 +80,12 @@ class Blockchain:
         return self.chain
 
     def __lt__(self, other: Blockchain):
+        """compare the current blockchain with another. Comparison of blockchain length
+
+        Args:
+            other (Blockchain): The blockchain to be compaired with
+
+        Returns:
+            Bool: True if blockchain less than the other blockchain
+        """
         return len(self.chain) < len(other.chain)

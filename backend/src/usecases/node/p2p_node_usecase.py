@@ -10,4 +10,9 @@ class P2PNodeUsecase(NodeUsecase):
         self.node = P2PNode()
 
     def set_ring(self, ring: Ring):
+        """set the ring of the node
+
+        Args:
+            ring (Ring): The ring to update the node's ring
+        """
         self.node.set_ring(ring)
