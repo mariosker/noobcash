@@ -18,6 +18,12 @@ nodes = [node_data('http://localhost', p) for p in range(5000, 5005)]
 
 
 def request_transactions(node, nodes_count):
+    """Request to create a transaction
+
+    Args:
+        node (Int): The node id
+        nodes_count (Int): The number of nodes
+    """
     host = nodes[node]['host']
     port = nodes[node]['port']
     with open(f"{path}/transactions/{nodes_count}nodes/transactions{node}.txt",
@@ -34,7 +40,11 @@ def request_transactions(node, nodes_count):
 
 
 def get_metrics_output(nodes_count):
+    """Request to get the metrics and parse to human readable form
 
+    Args:
+        nodes_count (Int): The number of nodes
+    """
     node_metrics = []
     for node in range(nodes_count):
         metrics = {}
@@ -72,6 +82,11 @@ def get_metrics_output(nodes_count):
 
 
 def main(nodes_count=5):
+    """main function to send the transactions concurrently and return the metrics after it finishes
+
+    Args:
+        nodes_count (int, optional): _description_. Defaults to 5.
+    """
     threads = []
     for i in range(nodes_count):
         threads.append(

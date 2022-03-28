@@ -19,6 +19,14 @@ class Wallet:
         return sum(utxo.value for utxo in self.unspent_transactions)
 
     def update_wallet(self, transaction: Transaction):
+        """Update the wallet's unspent transactions based on a transaction
+
+        Args:
+            transaction (Transaction): A transaction object
+
+        Raises:
+            ValueError: Error if wallet user is not in the transaction
+        """
         if self.public_key == transaction.receiver_address:
             _, utxo = transaction.transaction_outputs
             self.unspent_transactions.append(utxo)

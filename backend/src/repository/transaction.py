@@ -7,6 +7,8 @@ from src.pkg import crypto
 
 
 class TransactionDerivative:
+    """Mother class of Transaction Inputs and Outputs that helps comparing them
+    """
 
     def __init__(self, id, value):
         self.value = value
@@ -107,9 +109,26 @@ class Transaction:
         return [sender_output, receiver_output]
 
     def __lt__(self, other: Transaction):
+        """Check if object Transaction is less than another Transaction object
+
+        Args:
+            other (Transaction): The Transaction object to be compared to
+
+
+        Returns:
+            Bool: Return true if this transaction was created before the other
+        """
         return self.timestamp < other.timestamp
 
     def __eq__(self, other: Transaction):
+        """Check if two transactions are the same based on their id
+
+        Args:
+            other (Transaction): The transaction to be compared to
+
+        Returns:
+            Bool: True if they have the same id
+        """
         if isinstance(other, self.__class__):
             return self.transaction_id == other.transaction_id
         else:

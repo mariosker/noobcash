@@ -47,7 +47,7 @@ class Node:
         """Broadcast the given object to the given url with the given request function
 
         Args:
-            URL (str): the url to which we want to broadcast 
+            URL (str): the url to which we want to broadcast
             obj (_type_): the object we want to broadcast
             requests_function (_type_, optional): the function used for the request. Defaults to requests.post.
         """
@@ -206,9 +206,6 @@ class Node:
             sleep(0.1)
             if self.pause_transaction_handler.is_set():
                 continue
-            # more elegant solution
-            # if self.pause_transaction_handler.wait(timeout=0.1):
-            #     continue
 
             self.lock.acquire()
             if len(self.pending_transactions) < config.BLOCK_CAPACITY:
@@ -302,14 +299,13 @@ class Node:
         responses = self.broadcast(config.NODE_BLOCKCHAIN_URL,
                                    None,
                                    requests_function=requests.get)
-        # print(responses)
         return [pickle.loads(r.content) for r in responses]
 
     def _request_ring_and_transactions_from_node(self, id):
         """Requests ring and pending transactions of the node with the given id
 
         Args:
-            id (_type_): the id of the node of which we want to get the ring and pending transactions
+            id (str): the id of the node of which we want to get the ring and pending transactions
 
         Returns:
             response: response with the requested content

@@ -7,7 +7,16 @@ from requests.adapters import HTTPAdapter, Retry
 
 
 def poll_endpoint(url: str, request_type='post', data=None):
+    """makes a request to an endpoint and waits for a response. In case of failure retries
 
+    Args:
+        url (str): the endpoint to hit
+        request_type (str, optional): The type of the request. Supports post and get requests. Defaults to 'post'.
+        data (_type_, optional): Data to attach to the request. Defaults to None.
+
+    Returns:
+        response: the response of the request
+    """
     s = requests.Session()
     r = None
     retries = Retry(total=5,

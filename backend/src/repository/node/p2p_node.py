@@ -40,4 +40,9 @@ class P2PNode(Node):
         return resp_content
 
     def set_ring(self, ring: Ring) -> None:
+        """sets the ring to given ring
+
+        Args:
+            ring (Ring): the given ring
+        """
         self.ring = ring
