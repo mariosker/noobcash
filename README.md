@@ -7,10 +7,9 @@ Just another simple blockchain implementation.
 
 
 
-## Screenshots
+## Demo
 
-![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
-
+<img src="/documentation/demo.gif"/>
 
 ## API Reference
 
