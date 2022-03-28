@@ -173,6 +173,7 @@ class Node:
         Raises:
             Exception: Mining interrupted by event
         """
+        start_time = time.time()
         while not block.current_hash.startswith('0' * config.MINING_DIFFICULTY):
             if self.pause_transaction_handler.is_set():
                 config.logger.debug('''
@@ -189,6 +190,7 @@ class Node:
         |------------------|
         ''')
         last_mined_block_timestamp.set(time.time())
+        block_time.observe(time.time() - start_time)
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
         """Sets the current blockchain to the given blockchain
@@ -216,14 +218,13 @@ class Node:
                 self.pending_transactions.pop()
                 for _ in range(config.BLOCK_CAPACITY)
             ]
-            start_time = time.time()
+
             pending_block = Block(len(self.blockchain),
                                   self.blockchain.get_last_block().current_hash,
                                   transactions)
             try:
                 self.mine_block(pending_block)
                 self._register_mined_block(pending_block)
-                block_time.observe(time.time() - start_time)
             except:
                 self.pending_transactions.extendleft(transactions)
             else:
