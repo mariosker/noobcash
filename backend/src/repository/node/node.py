@@ -9,9 +9,9 @@ from time import sleep
 
 import requests
 from config import config
-from src.metrics.metrics import (block_time, transaction_counter,
+from src.metrics.metrics import (block_time, first_transaction_timestamp,
                                  last_mined_block_timestamp,
-                                 first_transaction_timestamp)
+                                 transaction_counter)
 from src.pkg.requests import poll_endpoint
 from src.repository.block import Block
 from src.repository.blockchain import Blockchain
@@ -164,7 +164,7 @@ class Node:
 
         return False
 
-    def mine_block(self, block: Block):
+    def mine_block(self, block: Block) -> bool:
         """Mines the block until it begins with MINING_DIFFICULTY zeroes
 
         Args:
@@ -181,7 +181,7 @@ class Node:
                 |  STOPPED MINING  |
                 |------------------|
                 ''')
-                raise Exception("Mining interrupted by event")
+                return False
             block.nonce += 1
             block.current_hash = block.calculate_hash()
         config.logger.debug('''
@@ -191,6 +191,7 @@ class Node:
         ''')
         last_mined_block_timestamp.set(time.time())
         block_time.observe(time.time() - start_time)
+        return True
 
     def set_blockchain(self, blockchain: Blockchain) -> None:
         """Sets the current blockchain to the given blockchain
@@ -222,10 +223,9 @@ class Node:
             pending_block = Block(len(self.blockchain),
                                   self.blockchain.get_last_block().current_hash,
                                   transactions)
-            try:
-                self.mine_block(pending_block)
-                self._register_mined_block(pending_block)
-            except:
+            mined = self.mine_block(pending_block)
+            self._register_mined_block(pending_block)
+            if not mined:
                 self.pending_transactions.extendleft(transactions)
             else:
                 Thread(target=self._broadcast_block,
