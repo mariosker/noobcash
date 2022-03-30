@@ -19,7 +19,7 @@ def poll_endpoint(url: str, request_type='post', data=None):
     """
     s = requests.Session()
     r = None
-    retries = Retry(total=5,
+    retries = Retry(total=10,
                     backoff_factor=2,
                     status_forcelist=[429, 500, 502, 503, 504])
     s.mount('http://', HTTPAdapter(max_retries=retries))

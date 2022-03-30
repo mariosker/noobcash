@@ -25,6 +25,6 @@ class NodeUsecase():
             Dict(Ring, List[Transaction]): A dict containing the ring and the transactions
         """
         return {
-            'ring': self.node.ring(),
+            'ring': self.node.ring,
             'transactions': self.node.pending_transactions
         }

@@ -224,12 +224,12 @@ class Node:
                                   self.blockchain.get_last_block().current_hash,
                                   transactions)
             mined = self.mine_block(pending_block)
-            self._register_mined_block(pending_block)
-            # if not mined:
-            #     self.pending_transactions.extendleft(transactions)
             if mined:
+                self._register_mined_block(pending_block)
                 Thread(target=self._broadcast_block,
                        args=(deepcopy(pending_block),)).start()
+            else:
+                self.pending_transactions.extendleft(transactions)
             self.lock.release()
 
     def update_transactions(self, transaction: Transaction):
@@ -315,7 +315,7 @@ class Node:
         for node in self.ring:
             if node.id == id:
                 response = poll_endpoint(
-                    f'{node.host}:{node.port}{config.NODE_RING_AND_TRANSACTION}',
+                    f'http://{node.host}:{node.port}{config.NODE_RING_AND_TRANSACTION}',
                     request_type='get',
                 )
                 response = pickle.loads(response.content)
