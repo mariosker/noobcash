@@ -206,7 +206,6 @@ class Node:
         adds it to the blockchain and broadcasts it to the whole network
         """
         while True:
-            # sleep(0.1)
             if self.pause_transaction_handler.is_set():
                 continue
 
@@ -330,7 +329,6 @@ class Node:
         # NOTE: maybe needs threading
         responses = self._request_blockchain()
         responses.sort(key=lambda x: Blockchain(x['blockchain']), reverse=True)
-
         max_response = {'blockchain': self.blockchain, 'id': self.node_info.id}
 
         for resp in responses:
@@ -351,7 +349,6 @@ class Node:
         self.blockchain = deepcopy(max_response['blockchain'])
         self.ring = deepcopy(response['ring'])
         self.pending_transactions = deepcopy(response['transactions'])
-
         for node in self.ring:
             if node.id == self.node_info.id:
-                self.wallet.unspent_transactions = deepcopy(node.utxos)
+                self.wallet.unspent_transactions = deepcopy(node.wallet.unspent_transactions)

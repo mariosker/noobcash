@@ -36,7 +36,7 @@ def request_transactions(node, nodes_count):
             data = {'node_id': id, 'amount': amount}
             print(node, data)
             requests.post(f'{host}:{port}/transactions', data=data)
-            time.sleep(random.random() * 10)
+            time.sleep(2)
 
 
 def get_metrics_output(nodes_count):
