@@ -22,5 +22,6 @@ class NodeUsecase():
         """
         return {
             'ring': self.node.ring,
+            'blockchain': self.node.blockchain,
             'transactions': self.node.pending_transactions
         }

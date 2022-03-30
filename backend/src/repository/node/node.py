@@ -276,7 +276,7 @@ class Node:
                     self.update_transactions(transaction)
         except Exception as err:
             print(err)
-            self.resolve_conflict()
+            # self.resolve_conflict()
 
         self.lock.release()
         self.pause_transaction_handler.clear()
@@ -346,9 +346,9 @@ class Node:
         response = self._request_ring_and_transactions_from_node(
             max_response['id'])
 
-        self.blockchain = deepcopy(max_response['blockchain'])
+        self.blockchain = deepcopy(response['blockchain'])
         self.ring = deepcopy(response['ring'])
         self.pending_transactions = deepcopy(response['transactions'])
         for node in self.ring:
             if node.id == self.node_info.id:
-                self.wallet.unspent_transactions = deepcopy(node.wallet.unspent_transactions)
+                self.wallet.unspent_transactions = deepcopy(node.utxos)

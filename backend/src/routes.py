@@ -131,8 +131,9 @@ class RouteHandler:
             Bytes: The response pickled
         """
         ring_and_transactions_pickled = pickle.dumps(
-            self.node_usecase.get_ring_and_transactions())
+        self.node_usecase.get_ring_and_transactions())
         return ring_and_transactions_pickled
+        
 
 
 class BootstrapRouteHandler(RouteHandler):
