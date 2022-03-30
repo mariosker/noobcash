@@ -206,7 +206,7 @@ class Node:
         adds it to the blockchain and broadcasts it to the whole network
         """
         while True:
-            sleep(0.1)
+            # sleep(0.1)
             if self.pause_transaction_handler.is_set():
                 continue
 
@@ -225,9 +225,9 @@ class Node:
                                   transactions)
             mined = self.mine_block(pending_block)
             self._register_mined_block(pending_block)
-            if not mined:
-                self.pending_transactions.extendleft(transactions)
-            else:
+            # if not mined:
+            #     self.pending_transactions.extendleft(transactions)
+            if mined:
                 Thread(target=self._broadcast_block,
                        args=(deepcopy(pending_block),)).start()
             self.lock.release()

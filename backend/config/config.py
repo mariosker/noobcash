@@ -15,8 +15,8 @@ IS_BOOTSRAP = bool(os.getenv('IS_BOOTSTRAP'))
 BOOTSTRAP_HOST = os.getenv('BOOTSTRAP_HOST', '127.0.0.1')
 BOOTSTRAP_PORT = os.getenv('BOOTSTRAP_PORT', '5000')
 
-MAX_USER_COUNT = int(os.getenv('MAX_USER_COUNT', '10'))
-BLOCK_CAPACITY = int(os.getenv('BLOCK_CAPACITY', '5'))
+MAX_USER_COUNT = int(os.getenv('MAX_USER_COUNT', '5'))
+BLOCK_CAPACITY = int(os.getenv('BLOCK_CAPACITY', '1'))
 MINING_DIFFICULTY = int(os.getenv('MINING_DIFFICULTY', '5'))
 
 NBC_PER_NODE = 100
