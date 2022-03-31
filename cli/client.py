@@ -13,7 +13,7 @@ class Noobcash(cmd.Cmd):
     def preloop(self) -> None:
         print(pyfiglet.figlet_format("NOOBCASH"))
         port = input('Enter the port of your wallet: ')
-        host = 'localhost'
+        host = input('Enter the host of your wallet: (ex <localhost>)')
         self.api = RestAPI(host, port)
 
     def do_t(self, args):
