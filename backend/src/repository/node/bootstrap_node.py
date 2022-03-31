@@ -33,7 +33,6 @@ class BootstrapNode(Node):
             Block: The genesis block
         """
         genesis_amount = config.NBC_PER_NODE * config.MAX_USER_COUNT
-        # TODO: try private_key = None
         genesis_transaction = Transaction('0', self.wallet.public_key,
                                           genesis_amount, [],
                                           self.wallet.private_key)
@@ -87,5 +86,5 @@ class BootstrapNode(Node):
 
                 self.create_transaction(node.public_key, config.NBC_PER_NODE)
         except ValueError as err:
-            config.logger.debug(err)
+            # config.logger.debug(err)
             raise ValueError('Could not create initial transactions')

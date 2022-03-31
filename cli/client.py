@@ -1,9 +1,12 @@
 import cmd
+import logging
 
 import pyfiglet
 
 from rest import RestAPI
 
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 class Noobcash(cmd.Cmd):
     intro = 'Welcome to the Noobcash client.   Type help or ? to list commands.\n'

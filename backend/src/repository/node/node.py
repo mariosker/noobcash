@@ -30,7 +30,6 @@ class Node:
         self.wallet = Wallet()
         self.ring = Ring([])
         self.blockchain = Blockchain()
-        # TODO: Maybe remove node_info
         self.node_info = RingNode(id=-1,
                                   host=config.HOST,
                                   port=config.PORT,
@@ -153,12 +152,12 @@ class Node:
             bool: True if transaction is valid, else False
         """
         if not transaction.verify_signature(transaction.sender_address):
-            config.logger.debug('cannot verify')
+            # config.logger.debug('cannot verify')
             return False
 
         for node in self.ring:
             if node.public_key == transaction.sender_address:
-                config.logger.debug('Found node')
+                # config.logger.debug('Found node')
                 if node.balance >= transaction.amount:
                     return True
 
@@ -176,19 +175,19 @@ class Node:
         start_time = time.time()
         while not block.current_hash.startswith('0' * config.MINING_DIFFICULTY):
             if self.pause_transaction_handler.is_set():
-                config.logger.debug('''
-                |------------------|
-                |  STOPPED MINING  |
-                |------------------|
-                ''')
+                # config.logger.debug('''
+                # |------------------|
+                # |  STOPPED MINING  |
+                # |------------------|
+                # ''')
                 raise Exception("Mining interrupted by event")
             block.nonce += 1
             block.current_hash = block.calculate_hash()
-        config.logger.debug('''
-        |------------------|
-        |      MINED       |
-        |------------------|
-        ''')
+        # config.logger.debug('''
+        # |------------------|
+        # |      MINED       |
+        # |------------------|
+        # ''')
         last_mined_block_timestamp.set(time.time())
         block_time.observe(time.time() - start_time)
 
@@ -241,7 +240,7 @@ class Node:
         try:
             self.wallet.update_wallet(transaction)
         except Exception as err:
-            config.logger.debug(err)
+            config.logger.debug("")
         self.ring.update_unspent_transactions(transaction)
 
     def _register_mined_block(self, block: Block):
@@ -327,7 +326,6 @@ class Node:
         """Requests the blockchain of all the other nodes, and if we do not have the longest valid blockchain,
         gets the blockchain, ring and pending transactions of the node that has it.
         """
-        # NOTE: maybe needs threading
         responses = self._request_blockchain()
         responses.sort(key=lambda x: Blockchain(x['blockchain']), reverse=True)
 
