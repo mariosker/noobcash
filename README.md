@@ -2,10 +2,9 @@
 
 # Noobcash
 
+<img alt="" src="https://img.shields.io/badge/Published-01%2F04%2F2022-green?style=flat-square" /> <img alt="" src="https://img.shields.io/badge/license-MIT-brightgreen?style=flat-square" />
+
 Just another simple blockchain implementation.
-
-
-
 
 ## Demo
 
